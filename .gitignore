@@ -1,0 +1,5 @@
+paper/old_paper.tex
+paper/paper.aux
+*.pdf
+paper/paper.log
+*.gz
