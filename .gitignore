@@ -3,3 +3,5 @@ paper/paper.aux
 *.pdf
 paper/paper.log
 *.gz
+*.opensdf
+Code/CS580HW5.sdf
