@@ -5,6 +5,11 @@ VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CS580HW5", "CS580HW5.vcxproj", "{FC6C12BC-2B51-4AE2-AA0E-2B93B781D9C5}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Project_Tests", "Project_Tests\Project_Tests.vcxproj", "{9757CB21-B840-49A6-B057-9F322E543DD6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FC6C12BC-2B51-4AE2-AA0E-2B93B781D9C5} = {FC6C12BC-2B51-4AE2-AA0E-2B93B781D9C5}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -15,6 +20,10 @@ Global
 		{FC6C12BC-2B51-4AE2-AA0E-2B93B781D9C5}.Debug|Win32.Build.0 = Debug|Win32
 		{FC6C12BC-2B51-4AE2-AA0E-2B93B781D9C5}.Release|Win32.ActiveCfg = Release|Win32
 		{FC6C12BC-2B51-4AE2-AA0E-2B93B781D9C5}.Release|Win32.Build.0 = Release|Win32
+		{9757CB21-B840-49A6-B057-9F322E543DD6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9757CB21-B840-49A6-B057-9F322E543DD6}.Debug|Win32.Build.0 = Debug|Win32
+		{9757CB21-B840-49A6-B057-9F322E543DD6}.Release|Win32.ActiveCfg = Release|Win32
+		{9757CB21-B840-49A6-B057-9F322E543DD6}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

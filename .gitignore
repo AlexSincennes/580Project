@@ -5,3 +5,8 @@ paper/paper.log
 *.gz
 *.opensdf
 Code/CS580HW5.sdf
+*.suo
+code/debug
+code/ipch
+code/project_tests/debug
+Code/Project_Tests/Project_Tests.vcxproj.user
