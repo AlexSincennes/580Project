@@ -51,6 +51,7 @@
     <OutDir>.\Debug\</OutDir>
     <IntDir>.\Debug\</IntDir>
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -139,6 +140,7 @@
     <ClCompile Include="CS580HWView.cpp" />
     <ClCompile Include="disp.cpp" />
     <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="mtrand\mtrand.cpp" />
     <ClCompile Include="rend.cpp" />
     <ClCompile Include="RotateDlg.cpp" />
     <ClCompile Include="ScaleDlg.cpp" />
@@ -163,6 +165,7 @@
     <ClInclude Include="disp.h" />
     <ClInclude Include="gz.h" />
     <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="mtrand\mtrand.h" />
     <ClInclude Include="rend.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RotateDlg.h" />
