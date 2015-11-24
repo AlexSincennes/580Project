@@ -1,5 +1,7 @@
 #include "disp.h" /* include your own disp.h file (e.g. hw1)*/
 
+#include <vector>
+
 /* Camera defaults */
 #define	DEFAULT_FOV		35.0
 #define	DEFAULT_IM_Z	(-10.0)  /* world coords for image plane origin */
@@ -34,6 +36,23 @@ typedef struct {			/* define a renderer */
 }  GzRender;
 #endif
 
+#ifndef GZPROJECT
+#define GZPROJECT
+typedef struct {
+    GzCoord pos;
+    GzCoord normal;
+    GzColor Ka, Kd, Ks;
+} GzVertex;
+
+typedef struct {
+    GzVertex vertices[3];
+} GzTriangle;
+
+typedef struct {
+    std::vector<GzTriangle> tris;
+} GzWorldSpaceTriangles;
+#endif
+
 // Function declaration
 // HW2
 int GzNewRender(GzRender **render, GzDisplay *display);
@@ -64,7 +83,7 @@ int GzScaleMat(GzCoord scale, GzMatrix mat);
 int findGeneralLineEq(const GzCoord* tail, const GzCoord* head, GzCoord &out);
 
 //sort vertices CW
-int sortVerticesCW(const GzCoord* (&tri)[3], GzCoord* (&normals)[3], GzTextureIndex* (&tex)[3]);
+int sortVerticesCW(const GzCoord* (&tri)[3], GzCoord* (&normals)[3]);
 
 // linear expression evaluation algorithm
 int lee(GzRender *render, const GzCoord* (&tri)[3], GzCoord* (&normals)[3], GzTextureIndex* (&tex)[3]);

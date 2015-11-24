@@ -173,18 +173,19 @@ GzMatrix	rotateY =
         specpower = 32;
         valueListShader[4] = (GzPointer)&specpower;
 
-        nameListShader[5]  = GZ_TEXTURE_MAP;
+        // get rid of textures
+        //nameListShader[5]  = GZ_TEXTURE_MAP;
 #if 0   /* set up null texture function or valid pointer */
-        valueListShader[5] = (GzPointer)0;
+        //valueListShader[5] = (GzPointer)0;
 #else
-        valueListShader[5] = (GzPointer)(tex_fun);	/* or use ptex_fun */
+        //valueListShader[5] = (GzPointer)(tex_fun);	/* or use ptex_fun */
 #endif
-        status |= GzPutAttribute(m_pRender, 6, nameListShader, valueListShader);
+        status |= GzPutAttribute(m_pRender, 5, nameListShader, valueListShader);
 
 
-	status |= GzPushMatrix(m_pRender, scale);  
-	status |= GzPushMatrix(m_pRender, rotateY); 
-	status |= GzPushMatrix(m_pRender, rotateX); 
+	//status |= GzPushMatrix(m_pRender, scale);  
+	//status |= GzPushMatrix(m_pRender, rotateY); 
+	//status |= GzPushMatrix(m_pRender, rotateX); 
 
 	if (status) exit(GZ_FAILURE); 
 
@@ -213,7 +214,7 @@ int Application5::Render()
 	*/ 
 	nameListTriangle[0] = GZ_POSITION; 
 	nameListTriangle[1] = GZ_NORMAL; 
-	nameListTriangle[2] = GZ_TEXTURE_INDEX;  
+	//nameListTriangle[2] = GZ_TEXTURE_INDEX;  
 
 	// I/O File open
 	FILE *infile;
@@ -234,6 +235,8 @@ int Application5::Render()
 	* Walk through the list of triangles, set color 
 	* and render each triangle 
 	*/ 
+
+    // set kd,ks,ka
 	while( fscanf(infile, "%s", dummy) == 1) { 	/* read in tri word */
 	    fscanf(infile, "%f %f %f %f %f %f %f %f", 
 		&(vertexList[0][0]), &(vertexList[0][1]),  
@@ -261,9 +264,13 @@ int Application5::Render()
 	     */ 
 	     valueListTriangle[0] = (GzPointer)vertexList; 
 		 valueListTriangle[1] = (GzPointer)normalList; 
-		 valueListTriangle[2] = (GzPointer)uvList; 
-		 GzPutTriangle(m_pRender, 3, nameListTriangle, valueListTriangle); 
+		 //valueListTriangle[2] = (GzPointer)uvList; 
+		 //GzPutTriangle(m_pRender, 2, nameListTriangle, valueListTriangle); 
+
+
 	} 
+
+    // DO RAYCAST HERE
 
 	GzFlushDisplay2File(outfile, m_pDisplay); 	/* write out or update display to file*/
 	GzFlushDisplay2FrameBuffer(m_pFrameBuffer, m_pDisplay);	// write out or update display to frame buffer

@@ -508,10 +508,6 @@ int GzPutTriangle(GzRender	*render, int numParts, GzToken *nameList, GzPointer	*
     GzCoord *n1 = (GzCoord *)malloc(sizeof(GzCoord));
     GzCoord *n2 = (GzCoord *)malloc(sizeof(GzCoord));
 
-    GzTextureIndex *tex0 = (GzTextureIndex *)malloc(sizeof(GzTextureIndex));
-    GzTextureIndex *tex1 = (GzTextureIndex *)malloc(sizeof(GzTextureIndex));
-    GzTextureIndex *tex2 = (GzTextureIndex *)malloc(sizeof(GzTextureIndex));
-
     for (int i = 0; i < numParts; i++) {
         GzToken token = nameList[i];
         GzPointer val = valueList[i];
@@ -544,19 +540,6 @@ int GzPutTriangle(GzRender	*render, int numParts, GzToken *nameList, GzPointer	*
 
             break;
         }
-        case GZ_TEXTURE_INDEX: {
-            const GzTextureIndex* tex[3];
-            tex[0] = &((GzTextureIndex*)val)[0];
-            tex[1] = &((GzTextureIndex*)val)[1];
-            tex[2] = &((GzTextureIndex*)val)[2];
-
-
-            // do perspective stuff
-            memcpy(tex0, tex[0], sizeof(GzTextureIndex));
-            memcpy(tex1, tex[1], sizeof(GzTextureIndex));
-            memcpy(tex2, tex[2], sizeof(GzTextureIndex));
-            break;
-        }
         default:
             return GZ_FAILURE;
         }
@@ -574,27 +557,10 @@ int GzPutTriangle(GzRender	*render, int numParts, GzToken *nameList, GzPointer	*
         n_w[1] = n1;
         n_w[2] = n2;
 
-        GzTextureIndex* t_w[3] = {};
-        t_w[0] = tex0;
-        t_w[1] = tex1;
-        t_w[2] = tex2;
+        sortVerticesCW(tri_w, n_w);
+        
 
-        sortVerticesCW(tri_w, n_w, t_w);
-        lee(render, tri_w, n_w, t_w);
     }
-
-    free(tri0);
-    free(tri1);
-    free(tri2);
-
-    free(n0);
-    free(n1);
-    free(n2);
-
-    free(tex0);
-    free(tex1);
-    free(tex2);
-
     return GZ_SUCCESS;
 }
 
@@ -640,7 +606,7 @@ int findGeneralPlaneEq(const GzCoord* (&tri)[3], GzCoord &out, float &d) {
     return GZ_SUCCESS;
 }
 
-int sortVerticesCW(const GzCoord* (&tri)[3], GzCoord* (&normals)[3], GzTextureIndex* (&tex)[3]) {
+int sortVerticesCW(const GzCoord* (&tri)[3], GzCoord* (&normals)[3]) {
 
     // determine top vert
     // sort by Y ascending
@@ -651,7 +617,6 @@ int sortVerticesCW(const GzCoord* (&tri)[3], GzCoord* (&normals)[3], GzTextureIn
         ((*tri[1])[Y] == (*tri[0])[Y] && (*tri[1])[X] < (*tri[0])[X])) {
         std::swap(tri[0], tri[1]);
         std::swap(normals[0], normals[1]);
-        std::swap(tex[0], tex[1]);
     }
         
 
@@ -659,7 +624,6 @@ int sortVerticesCW(const GzCoord* (&tri)[3], GzCoord* (&normals)[3], GzTextureIn
             ((*tri[2])[Y] == (*tri[1])[Y] && (*tri[2])[X] < (*tri[1])[X])) {
             std::swap(tri[1], tri[2]);
             std::swap(normals[1], normals[2]);
-            std::swap(tex[1], tex[2]);
         }
         
 
@@ -667,7 +631,6 @@ int sortVerticesCW(const GzCoord* (&tri)[3], GzCoord* (&normals)[3], GzTextureIn
             ((*tri[1])[Y] == (*tri[0])[Y] && (*tri[1])[X] < (*tri[0])[X])) {
             std::swap(tri[0], tri[1]);
             std::swap(normals[0], normals[1]);
-            std::swap(tex[0], tex[1]);
         }
         
 
@@ -687,18 +650,15 @@ int sortVerticesCW(const GzCoord* (&tri)[3], GzCoord* (&normals)[3], GzTextureIn
         // so put mid second for final order top,mid,bot
         std::swap(tri[0], tri[2]);
         std::swap(normals[0], normals[2]);
-        std::swap(tex[0], tex[2]);
     }
     else {
         // then mid is to the left of bot-top line
         // put mid last for final order top,bot,mid
         std::swap(tri[0], tri[2]);
         std::swap(normals[0], normals[2]);
-        std::swap(tex[0], tex[2]);
 
         std::swap(tri[1], tri[2]);
         std::swap(normals[1], normals[2]);
-        std::swap(tex[1], tex[2]);
     }
     return GZ_SUCCESS;
 }
