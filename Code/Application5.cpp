@@ -293,6 +293,8 @@ int Application5::Render()
 
     // DO RAYCAST HERE
 
+    // e.g. raycast_render(m_pDisplay, m_pRender, wst);
+
 	GzFlushDisplay2File(outfile, m_pDisplay); 	/* write out or update display to file*/
 	GzFlushDisplay2FrameBuffer(m_pFrameBuffer, m_pDisplay);	// write out or update display to frame buffer
 
