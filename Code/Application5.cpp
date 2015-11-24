@@ -197,8 +197,6 @@ GzMatrix	rotateY =
 
 int Application5::Render() 
 {
-	GzToken		nameListTriangle[3]; 	/* vertex attribute names */
-	GzPointer	valueListTriangle[3]; 	/* vertex attribute pointers */
 	GzCoord		vertexList[3];	/* vertex position coordinates */ 
 	GzCoord		normalList[3];	/* vertex normals */ 
 	GzTextureIndex  	uvList[3];		/* vertex texture map indices */ 
@@ -212,8 +210,6 @@ int Application5::Render()
 	/* 
 	* Tokens associated with triangle vertex values 
 	*/ 
-	nameListTriangle[0] = GZ_POSITION; 
-	nameListTriangle[1] = GZ_NORMAL; 
 	//nameListTriangle[2] = GZ_TEXTURE_INDEX;  
 
 	// I/O File open
@@ -236,7 +232,15 @@ int Application5::Render()
 	* and render each triangle 
 	*/ 
 
-    // set kd,ks,ka
+    GzWorldSpaceTriangles* wst = new GzWorldSpaceTriangles();
+
+    // set kd,ks,ka (copied from above for now)
+    /* Material property */
+    GzColor specularCoefficient = { 0.3, 0.3, 0.3 };
+    GzColor ambientCoefficient = { 0.1, 0.1, 0.1 };
+    GzColor diffuseCoefficient = { 0.7, 0.7, 0.7 };
+
+
 	while( fscanf(infile, "%s", dummy) == 1) { 	/* read in tri word */
 	    fscanf(infile, "%f %f %f %f %f %f %f %f", 
 		&(vertexList[0][0]), &(vertexList[0][1]),  
@@ -257,17 +261,34 @@ int Application5::Render()
 		&(normalList[2][2]), 
 		&(uvList[2][0]), &(uvList[2][1]) ); 
 
-	    /* 
-	     * Set the value pointers to the first vertex of the 	
-	     * triangle, then feed it to the renderer 
-	     * NOTE: this sequence matches the nameList token sequence
-	     */ 
-	     valueListTriangle[0] = (GzPointer)vertexList; 
-		 valueListTriangle[1] = (GzPointer)normalList; 
-		 //valueListTriangle[2] = (GzPointer)uvList; 
-		 //GzPutTriangle(m_pRender, 2, nameListTriangle, valueListTriangle); 
+        // untested
+        GzTriangle* tri = new GzTriangle();
+        GzVertex* v0 = new GzVertex();
+        memcpy(v0->Ka, ambientCoefficient, sizeof(GzColor));
+        memcpy(v0->Kd, diffuseCoefficient, sizeof(GzColor));
+        memcpy(v0->Ks, specularCoefficient, sizeof(GzColor));
+        memcpy(v0->normal, vertexList[0], sizeof(GzCoord));
+        memcpy(v0->normal, normalList[0], sizeof(GzCoord));
 
+        GzVertex* v1 = new GzVertex();
+        memcpy(v1->Ka, ambientCoefficient, sizeof(GzColor));
+        memcpy(v1->Kd, diffuseCoefficient, sizeof(GzColor));
+        memcpy(v1->Ks, specularCoefficient, sizeof(GzColor));
+        memcpy(v1->normal, vertexList[1], sizeof(GzCoord));
+        memcpy(v1->normal, normalList[1], sizeof(GzCoord));
 
+        GzVertex* v2 = new GzVertex();
+        memcpy(v2->Ka, ambientCoefficient, sizeof(GzColor));
+        memcpy(v2->Kd, diffuseCoefficient, sizeof(GzColor));
+        memcpy(v2->Ks, specularCoefficient, sizeof(GzColor));
+        memcpy(v2->normal, vertexList[2], sizeof(GzCoord));
+        memcpy(v2->normal, normalList[2], sizeof(GzCoord));
+
+        tri->vertices[0] = v0;
+        tri->vertices[1] = v1;
+        tri->vertices[2] = v2;
+
+        wst->tris.push_back(tri);
 	} 
 
     // DO RAYCAST HERE

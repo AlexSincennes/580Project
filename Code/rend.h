@@ -45,11 +45,11 @@ typedef struct {
 } GzVertex;
 
 typedef struct {
-    GzVertex vertices[3];
+    GzVertex* vertices[3];
 } GzTriangle;
 
 typedef struct {
-    std::vector<GzTriangle> tris;
+    std::vector<GzTriangle*> tris;
 } GzWorldSpaceTriangles;
 #endif
 
