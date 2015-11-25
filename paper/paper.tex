@@ -12,12 +12,37 @@
 \title{CSCI 580 : Monte Carlo Path Tracing}
 \markboth{Thursday~December~3\textsuperscript{rd}~2015}
 {December~3\textsuperscript{rd}~2015}
-\author{Alexandre Sincennes~4955830681}
+\author{
+	Sincennes, Alexandre
+	\texttt{sincenne@usc.edu}\\
+	\and
+ 	Peechankottil Manikandan, Sajini
+ 	\texttt{smanikan@usc.edu}\\
+  	\and
+	Guanzhou Liu, Vincent
+ 	\texttt{guanzhol@usc.edu}\\
+  	\and
+	Ramirez, Bernie
+ 	\texttt{berniera@usc.edu}\\
+  
+}
 \maketitle
 
 %===================================================
 
-\section{Introduction}
+\section{Abstract}
+This will depend on our results.
 
+%===================================================
+
+\section{Introduction}
+Rendering via the use of rays, such as in the Monte Carlo path tracing approach, stands in stark contrast to the rasterization of triangles, which is the faster and more common approach to rendering, and the one used throughout the assignments of the CSCI 580 course. However, with path tracing it is possible to achieve photorealism by simulating the travel of photons, rather than the approximations used in renderers that make use of rasterization. INSERT STUFF RELATING TO WHAT WE ACCOMPLISHED.
+
+%===================================================
+
+\section{Prior Work}
+The origins of path tracing begin with ray tracing, first outlined in A. Appel's 1968 paper[1]. In the ray tracing technique, rays are cast out from the camera, or eye, through the image plane, and into the scene. The first surface it collides with is the one rendered for that pixel. Additionally, rays called shadow rays are cast from the light sources and determine whether or not the surface is being occluded by another, which would be collided with first by the shadow ray.\\
+
+A further development was Whitted ray tracing[2], wherein rays generate new rays upon collision with a surface, for direct illumination, perfect refraction and perfect reflection.
 
 \end{document}
