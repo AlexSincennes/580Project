@@ -4,9 +4,9 @@
 
 /* Camera defaults */
 #define	DEFAULT_FOV		35.0
-#define	DEFAULT_IM_Z	(-10.0)  /* world coords for image plane origin */
-#define	DEFAULT_IM_Y	(5.0)    /* default look-at point = 0,0,0 */
-#define	DEFAULT_IM_X	(-10.0)
+#define	DEFAULT_IM_Z	(-200)//(-10.0)  /* world coords for image plane origin */
+#define	DEFAULT_IM_Y	(0.0)//(5.0)    /* default look-at point = 0,0,0 */
+#define	DEFAULT_IM_X	(0.0)//(-10.0)
 
 #define	DEFAULT_AMBIENT	{0.1, 0.1, 0.1}
 #define	DEFAULT_DIFFUSE	{0.7, 0.6, 0.5}
@@ -82,13 +82,16 @@ int GzScaleMat(GzCoord scale, GzMatrix mat);
 // where out is {A,B,C}
 int findGeneralLineEq(const GzCoord* tail, const GzCoord* head, GzCoord &out);
 
-//sort vertices CW
+// sort vertices CW
 int sortVerticesCW(const GzCoord* (&tri)[3], GzCoord* (&normals)[3]);
 
 // linear expression evaluation algorithm
 int lee(GzRender *render, const GzCoord* (&tri)[3], GzCoord* (&normals)[3], GzTextureIndex* (&tex)[3]);
 
-//general line equation helper
+// Raycast Render:
+int raycast_render(GzRender *render, GzWorldSpaceTriangles *tris);
+
+// general line equation helper
 // where out is {A,B,C}
 int findGeneralPlaneEq(const GzCoord* (&tri)[3], GzCoord &out, float &d);
 

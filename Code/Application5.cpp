@@ -101,7 +101,7 @@ GzMatrix	rotateY =
 	0.0,	0.0,	0.0,	1.0 
 }; 
 
-#if 1 	/* set up app-defined camera if desired, else use camera defaults */
+#if 0 	/* set up app-defined camera if desired, else use camera defaults */
     camera.position[X] = -3;
     camera.position[Y] = -25;
     camera.position[Z] = -4;
@@ -267,21 +267,21 @@ int Application5::Render()
         memcpy(v0->Ka, ambientCoefficient, sizeof(GzColor));
         memcpy(v0->Kd, diffuseCoefficient, sizeof(GzColor));
         memcpy(v0->Ks, specularCoefficient, sizeof(GzColor));
-        memcpy(v0->normal, vertexList[0], sizeof(GzCoord));
+        memcpy(v0->pos, vertexList[0], sizeof(GzCoord));
         memcpy(v0->normal, normalList[0], sizeof(GzCoord));
 
         GzVertex* v1 = new GzVertex();
         memcpy(v1->Ka, ambientCoefficient, sizeof(GzColor));
         memcpy(v1->Kd, diffuseCoefficient, sizeof(GzColor));
         memcpy(v1->Ks, specularCoefficient, sizeof(GzColor));
-        memcpy(v1->normal, vertexList[1], sizeof(GzCoord));
+        memcpy(v1->pos, vertexList[1], sizeof(GzCoord));
         memcpy(v1->normal, normalList[1], sizeof(GzCoord));
 
         GzVertex* v2 = new GzVertex();
         memcpy(v2->Ka, ambientCoefficient, sizeof(GzColor));
         memcpy(v2->Kd, diffuseCoefficient, sizeof(GzColor));
         memcpy(v2->Ks, specularCoefficient, sizeof(GzColor));
-        memcpy(v2->normal, vertexList[2], sizeof(GzCoord));
+        memcpy(v2->pos, vertexList[2], sizeof(GzCoord));
         memcpy(v2->normal, normalList[2], sizeof(GzCoord));
 
         tri->vertices[0] = v0;
@@ -293,7 +293,8 @@ int Application5::Render()
 
     // DO RAYCAST HERE
 
-    // e.g. raycast_render(m_pDisplay, m_pRender, wst);
+    // e.g.
+	raycast_render(m_pRender, wst);
 
 	GzFlushDisplay2File(outfile, m_pDisplay); 	/* write out or update display to file*/
 	GzFlushDisplay2FrameBuffer(m_pFrameBuffer, m_pDisplay);	// write out or update display to frame buffer

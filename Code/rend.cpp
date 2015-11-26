@@ -913,3 +913,170 @@ int lee(GzRender *render, const GzCoord* (&tri)[3], GzCoord* (&normals)[3], GzTe
     free(tri2_color);
     return GZ_SUCCESS;
 }
+//https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
+bool rayTriangleIntersect(
+	GzCoord &orig, GzCoord &dir,
+	GzCoord &v0, const GzCoord &v1, const GzCoord &v2,
+	float &out)
+{
+	GzCoord e1, e2;  //Edge1, Edge2
+	GzCoord P, Q, T;
+	float det, inv_det, u, v;
+	float t;
+
+	//Find vectors for two edges sharing V1
+	e1[0] = v1[0] - v0[0];
+	e1[1] = v1[1] - v0[1];
+	e1[2] = v1[2] - v0[2];
+
+	e2[0] = v2[0] - v0[0];
+	e2[1] = v2[1] - v0[1];
+	e2[2] = v2[2] - v0[2];
+
+	//Begin calculating determinant - also used to calculate u parameter
+	crossProduct(dir, e2, &P);
+	//CROSS(P, D, e2);
+
+	//if determinant is near zero, ray lies in plane of triangle
+	det = dotProduct(e1, P);
+
+	//NOT CULLING
+	if (det > -0.000001 && det < 0.000001) return false;
+	inv_det = 1.f / det;
+
+	//calculate distance from V1 to ray origin
+	T[0] = orig[0] - v0[0];
+	T[1] = orig[1] - v0[1];
+	T[2] = orig[2] - v0[2];
+
+
+	//Calculate u parameter and test bound
+	u = dotProduct(T, P) * inv_det;
+	//The intersection lies outside of the triangle
+	if (u < 0.f || u > 1.f) return false;
+
+	//Prepare to test v parameter
+	//CROSS(Q, T, e1);
+	crossProduct(T, e1, &Q);
+
+	//Calculate V parameter and test bound
+	v = dotProduct(dir, Q) * inv_det;
+	//The intersection lies outside of the triangle
+	if (v < 0.f || u + v  > 1.f) return false;
+
+	t = dotProduct(e2, Q) * inv_det;
+
+	if (t > 0.000001) { //ray intersection
+		out = t;
+		return true;
+	}
+
+	// No hit, no win
+	return false;
+}
+
+int raycast_render(GzRender *render, GzWorldSpaceTriangles *tris)
+{
+	//Loop through all pixels:
+	for (int i = 0; i < render->display->xres; i++)
+	{
+		for (int j = 0; j < render->display->yres; j++)
+		{
+			//Create Ray:
+			GzRay ray;
+			ray.position[0] = render->camera.position[0];
+			ray.position[1] = render->camera.position[1];
+			ray.position[2] = render->camera.position[2];
+
+			float d = 50;//1 / (tan(degToRad(render->camera.FOV) / 2.0f));
+			float W = 2;//2 * d*(tan(degToRad(render->camera.FOV) / 2.0f)); //Horizontal Field of View
+			float H = 2;// 2 * d*(tan(degToRad(render->camera.FOV) / 2.0f)); //Assuming same field of view in vertical
+
+			GzCoord cam_Z = {
+				render->camera.lookat[X] - render->camera.position[X],
+				render->camera.lookat[Y] - render->camera.position[Y],
+				render->camera.lookat[Z] - render->camera.position[Z],
+			};
+			normalizeGzCoord(cam_Z);
+
+			float updotz = dotProduct(render->camera.worldup, cam_Z);
+			GzCoord cam_Y = {
+				render->camera.worldup[X] - updotz * cam_Z[X],
+				render->camera.worldup[Y] - updotz * cam_Z[Y],
+				render->camera.worldup[Z] - updotz * cam_Z[Z],
+			};
+			normalizeGzCoord(cam_Y);
+
+			GzCoord cam_X;
+			crossProduct(cam_Y, cam_Z, &cam_X);
+
+			GzCoord Center = {
+				render->camera.position[0] + (cam_Z[X] * d),
+				render->camera.position[1] + (cam_Z[Y] * d),
+				render->camera.position[2] + (cam_Z[Z] * d)
+			};
+
+			GzCoord BottomLeft = {
+				Center[X] - ((cam_X)[X] * (W / 2)) + ((cam_Y)[X] * (H / 2)),
+				Center[Y] - ((cam_X)[Y] * (W / 2)) + ((cam_Y)[Y] * (H / 2)),
+				Center[Z] - ((cam_X)[Z] * (W / 2)) + ((cam_Y)[Z] * (H / 2))
+			};
+
+			GzCoord pixelPos = {
+				BottomLeft[X] + ((cam_X)[X] * (i + .5)*(W / render->display->xres)) - ((cam_Y)[X] * (j + .5)*(H / render->display->yres)),
+				BottomLeft[Y] + ((cam_X)[Y] * (i + .5)*(W / render->display->xres)) - ((cam_Y)[Y] * (j + .5)*(H / render->display->yres)),
+				BottomLeft[Z] + ((cam_X)[Z] * (i + .5)*(W / render->display->xres)) - ((cam_Y)[Z] * (j + .5)*(H / render->display->yres))
+
+			};
+
+			//Creating eye rays
+			//http://web.cse.ohio-state.edu/~hwshen/681/Site/Slides_files/basic_algo.pdf
+
+			pixelPos[0] = pixelPos[0] - ray.position[0];
+			pixelPos[1] = pixelPos[1] - ray.position[1];
+			pixelPos[2] = pixelPos[2] - ray.position[2];
+
+			normalizeGzCoord(pixelPos);
+
+			ray.direction[0] = pixelPos[0];
+			ray.direction[1] = pixelPos[1];
+			ray.direction[2] = pixelPos[2];
+			normalizeGzCoord(ray.direction);
+
+			//for each triangle
+			for (int k = 0; k < tris->tris.size() - 1; k++)
+			{
+				GzCoord triA;
+				triA[0] = tris->tris[k]->vertices[0]->pos[0];//(tri0[0])[0];
+				triA[1] = tris->tris[k]->vertices[0]->pos[1];
+				triA[2] = tris->tris[k]->vertices[0]->pos[2];
+
+				GzCoord triB;
+				triB[0] = tris->tris[k]->vertices[1]->pos[0];
+				triB[1] = tris->tris[k]->vertices[1]->pos[1];
+				triB[2] = tris->tris[k]->vertices[1]->pos[2];
+
+				GzCoord triC;
+				triC[0] = tris->tris[k]->vertices[2]->pos[0];
+				triC[1] = tris->tris[k]->vertices[2]->pos[1];
+				triC[2] = tris->tris[k]->vertices[2]->pos[2];
+
+				//double t = ray_intersect(ray, triA, triB, triC);
+				float t_test = 0;
+				bool test = rayTriangleIntersect(ray.position, ray.direction, triA, triB, triC, t_test);
+
+				//if (t != 0)
+				if (test)
+				{
+					GzPutDisplay(render->display, i, j, 4095.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+				}
+			}
+			
+
+		}
+	}
+
+	return 0;
+}
+
+

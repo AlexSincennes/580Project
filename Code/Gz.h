@@ -88,6 +88,40 @@ typedef struct  GzInput
 } GzInput;
 #endif
 
+#ifndef GZRAY
+#define GZRAY
+struct  GzRay
+{
+	GzCoord         position;			/* ray position*/
+	GzCoord			direction;			/* ray direction */
+
+	GzRay()
+		//: position(GzCoord(0.0, 0.0, 0.0)), direction(GzCoord(0.0, 0.0, 0.0)) 
+	{
+		position[0] = 0.0f;
+		position[1] = 0.0f;
+		position[2] = 0.0f;
+
+		direction[0] = 0.0f;
+		direction[1] = 0.0f;
+		direction[2] = 0.0f;
+	}
+	GzRay(const GzCoord & npos, const GzCoord & ndirection)
+		//: position(npos), direction(ndirection) 
+	{
+		position[0] = npos[0];
+		position[1] = npos[1];
+		position[2] = npos[2];
+
+		direction[0] = ndirection[0];
+		direction[1] = ndirection[1];
+		direction[2] = ndirection[2];
+	}
+
+};
+
+#endif
+
 #define RED     0         /* array indicies for color vector */
 #define GREEN   1
 #define BLUE    2
