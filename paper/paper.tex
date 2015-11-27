@@ -42,9 +42,23 @@ Rendering via the use of rays, such as in the Monte Carlo path tracing approach,
 %===================================================
 
 \section{Prior Work}
-The origins of path tracing begin with ray tracing, first outlined in A. Appel's 1968 paper[1]. In the ray tracing technique, rays are cast out from the camera, or eye, through the image plane, and into the scene. The first surface it collides with is the one rendered for that pixel. Additionally, rays called shadow rays are cast from the light sources and determine whether or not the surface is being occluded by another, which would be collided with first by the shadow ray.A further development was Whitted ray tracing[2], wherein rays generate new rays upon collision with a surface, for direct illumination, perfect refraction and perfect reflection.\\
+The origins of path tracing begin with ray tracing, first outlined in A. Appel's 1968 paper[1]. In the ray tracing technique, rays are cast out from the camera, or eye, through the image plane, and into the scene. The first surface it collides with is the one rendered for that pixel. Additionally, rays called shadow rays are cast from the light sources and determine whether or not the surface is being occluded by another, which would be collided with first by the shadow ray.A further development was Whitted ray tracing[2], wherein rays generate new rays upon collision with a surface, for direct illumination, perfect refraction and perfect reflection.
 
-MONTE CARLO PAPERS
+\par
+
+Also instrumental for Monte Carlo path tracing was work in radiosity, which takes into account lighting emitted from diffuse surfaces rather than purely specular ones. J. Kajiya's 1986's paper[3] on the rendering equation brings a mathematical basis for these relationships, described by:
+
+\begin{center}
+$L_{\text{o}}(\mathbf x,\, \omega_{\text{o}},\, \lambda,\, t) \,=\, L_e(\mathbf x,\, \omega_{\text{o}},\, \lambda,\, t) \ +\, \int_\Omega f_r(\mathbf x,\, \omega_{\text{i}},\, \omega_{\text{o}},\, \lambda,\, t)\, L_{\text{i}}(\mathbf x,\, \omega_{\text{i}},\, \lambda,\, t)\, (\omega_{\text{i}}\,\cdot\,\mathbf n)\, \operatorname d \omega_{\text{i}}$
+\end{center}
+
+\begin{flushright}
+\par 
+(1)
+\end{flushright}
+
+\par
+SOME TEXT
 
 \section{The Monte Carlo Path Tracing Algorithm}
 explain the algorithmia
@@ -59,13 +73,16 @@ Pictures, maybe some figures for different numbers of rays.
 
 %===================================================
 
-\begin{thebibliography}{2}
+\begin{thebibliography}{3}
 
 \bibitem{Appel}
-Appel, A. Some techniques for shading machine renderings of solids. \emph{AFIPS '68 (Spring) Proceedings of the April 30--May 2, 1968, spring joint computer conference}: pp. 37-45, 1968.
+Appel, A. Some techniques for shading machine renderings of solids. \emph{AFIPS '68 (Spring) Proceedings of the April 30--May 2, 1968, spring joint computer conference}:37-45, 1968.
 
 \bibitem {Whitted}
- Whitted, T. An improved illumination model for shaded display. \emph{Comunications of the AMC}, 23(6):343–349, 1980.
+ Whitted, T. An improved illumination model for shaded display. \emph{Comunications of the AMC}, 23(6):343-349, 1980.
+
+\bibitem {Whitted}
+ Kajiya, J. The Rendering Equation. \emph{SIGGRAPH '86}, 20(4):143-150, 1986.
 
 \end{thebibliography}
 
