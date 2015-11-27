@@ -12,3 +12,4 @@ code/project_tests/debug
 Code/Project_Tests/Project_Tests.vcxproj.user
 *.sdf
 Code/CS580HW5.vcxproj.filters
+paper/paper.out
