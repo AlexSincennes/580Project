@@ -9,6 +9,7 @@
 #include	<limits>
 
 #define PI 3.141592653589793f
+#define MAXREFLECTANCE 10
 
 // HW3 helpers
 float degToRad(float deg) {
@@ -1068,6 +1069,13 @@ int raycast_render(GzRender *render, GzWorldSpaceTriangles *tris)
 				//if (t != 0)
 				if (test)
 				{
+					//This is where I should check for ray intersection
+					//Check if the ray intersects a surface,
+					//if so fetch the colour of the surface and assign a new direction to the ray from the point of intersection
+					
+					//Create a recursive method to reflect ray and fetch colour
+					float* newColor =  TracePath(ray, 0);		
+					
 					GzPutDisplay(render->display, i, j, 4095.0f, 0.0f, 0.0f, 1.0f, 1.0f);
 				}
 			}
@@ -1080,3 +1088,36 @@ int raycast_render(GzRender *render, GzWorldSpaceTriangles *tris)
 }
 
 
+float* TracePath(GzRay ray, int depth)
+{
+	if (depth == MAXREFLECTANCE)
+	{
+		GzCoord black; 
+		black[0] = 0.0f; //r g b
+		black[1] = 0.0f;
+		black[2] = 0.0f;
+
+		return black; 
+	}
+
+	//Fetch the colour of the ray position 
+	GzColor c; // ray.colour(some way to assign the colour of the object)
+
+	GzRay newray;
+	newray.position[0] = ray.position[0]; // newray origin
+	newray.position[1] = ray.position[1];
+	newray.position[2] = ray.position[2];
+
+	//newray.direction = pick a random direction 
+
+
+	// Compute the BRDF for this ray (assuming Lambertian reflection)
+	
+	GzCoord normalWhereObjectWasHit; //create a normal and assign
+	float cos_theta = dotProduct(newray.direction, normalWhereObjectWasHit);
+//	float* BRDF = 2 * m.reflectance * cos_theta;*/
+	float* reflected = TracePath(newray, depth + 1);
+
+	// Apply the Rendering Equation here.
+	//return emittance + (BRDF * reflected);*/
+}
