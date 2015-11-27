@@ -63,7 +63,7 @@ $L_{\text{o}}(\mathbf x,\, \omega_{\text{o}},\, \lambda,\, t) \,=\, L_e(\mathbf 
 Monte Carlo path tracing combines the techniques of reflected or refracted rays by recursively generating other rays, but also captures the lighting relations between diffuse surfaces. Using random numbers, it simulates the integration found the rendering equation by using the Russian Roulette technique for the generation of every new ray, i.e. a random number between zero and one is generated and compared to its colour coefficients.
 
 \section{The Monte Carlo Path Tracing Algorithm}
-The essentials of the Monte Carlo algorithm is surprisingly simple and can be summed as thus[4]:
+The essentials of the Monte Carlo algorithm are surprisingly simple and can be summed as thus[4]:
 
 \begin{description}
   \item[1)] Generate a ray from the camera (position x,y, horizontal and vertical fields of view u,v), passing through the image plane, with weight = 1
