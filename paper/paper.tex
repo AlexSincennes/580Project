@@ -6,6 +6,8 @@
 \usepackage{cite}
 \usepackage{setspace}
 \usepackage{amsmath}
+\usepackage{hyperref}
+
 
 \begin{document}
 
@@ -46,7 +48,7 @@ The origins of path tracing begin with ray tracing, first outlined in A. Appel's
 
 \par
 
-Also instrumental for Monte Carlo path tracing was work in radiosity, which takes into account lighting emitted from diffuse surfaces rather than purely specular ones. J. Kajiya's 1986's paper[3] on the rendering equation brings a mathematical basis for these relationships, described by:
+Also instrumental for Monte Carlo path tracing was work in radiosity, which takes into account lighting emitted from diffuse surfaces rather than specular reflection. J. Kajiya's 1986's paper[3] on the rendering equation brings a mathematical basis for these relationships, described by:
 
 \begin{center}
 $L_{\text{o}}(\mathbf x,\, \omega_{\text{o}},\, \lambda,\, t) \,=\, L_e(\mathbf x,\, \omega_{\text{o}},\, \lambda,\, t) \ +\, \int_\Omega f_r(\mathbf x,\, \omega_{\text{i}},\, \omega_{\text{o}},\, \lambda,\, t)\, L_{\text{i}}(\mathbf x,\, \omega_{\text{i}},\, \lambda,\, t)\, (\omega_{\text{i}}\,\cdot\,\mathbf n)\, \operatorname d \omega_{\text{i}}$
@@ -58,10 +60,18 @@ $L_{\text{o}}(\mathbf x,\, \omega_{\text{o}},\, \lambda,\, t) \,=\, L_e(\mathbf 
 \end{flushright}
 
 \par
-SOME TEXT
+Monte Carlo path tracing combines the techniques of reflected or refracted rays by recursively generating other rays, but also captures the lighting relations between diffuse surfaces. Using random numbers, it simulates the integration found the rendering equation by using the Russian Roulette technique for the generation of every new ray, i.e. a random number between zero and one is generated and compared to its colour coefficients.
 
 \section{The Monte Carlo Path Tracing Algorithm}
-explain the algorithmia
+The essentials of the Monte Carlo algorithm is surprisingly simple and can be summed as thus[4]:
+
+\begin{description}
+  \item[1)] Generate a ray from the camera (position x,y, horizontal and vertical fields of view u,v), passing through the image plane, with weight = 1
+  \item[2)] Find the point of intersection with the nearest surface
+  \item[3)] Randomly (Russian Roulette) decide whether the light is emitted or reflected (test against Kd or Ks)
+  \item[3A)] if emitted, return weight * Le
+  \item[3B)] if refleced, weight *= Ks, randomly scatter the ray according to the BRDF pdf, and go to step 2
+\end{description}
 
 \section{Implementation}
 Explain architectural changes.
@@ -73,16 +83,19 @@ Pictures, maybe some figures for different numbers of rays.
 
 %===================================================
 
-\begin{thebibliography}{3}
+\begin{thebibliography}{4}
 
 \bibitem{Appel}
 Appel, A. Some techniques for shading machine renderings of solids. \emph{AFIPS '68 (Spring) Proceedings of the April 30--May 2, 1968, spring joint computer conference}:37-45, 1968.
 
 \bibitem {Whitted}
- Whitted, T. An improved illumination model for shaded display. \emph{Comunications of the AMC}, 23(6):343-349, 1980.
+Whitted, T. An improved illumination model for shaded display. \emph{Comunications of the AMC}, 23(6):343-349, 1980.
 
-\bibitem {Whitted}
- Kajiya, J. The Rendering Equation. \emph{SIGGRAPH '86}, 20(4):143-150, 1986.
+\bibitem {Kajiya}
+Kajiya, J. The Rendering Equation. \emph{SIGGRAPH '86}, 20(4):143-150, 1986.
+
+\bibitem {Chapter}
+\url{http://cs.brown.edu/courses/cs224/papers/mc_pathtracing.pdf} page 9
 
 \end{thebibliography}
 
