@@ -70,8 +70,12 @@ The essentials of the Monte Carlo algorithm is surprisingly simple and can be su
   \item[2)] Find the point of intersection with the nearest surface
   \item[3)] Randomly (Russian Roulette) decide whether the light is emitted or reflected (test against Kd or Ks)
   \item[3A)] if emitted, return weight * Le
-  \item[3B)] if refleced, weight *= Ks, randomly scatter the ray according to the BRDF pdf, and go to step 2
+  \item[3B)] if refleced, weight *= Ks, randomly scatter the ray according to its BRDF pdf, and go to step 2
 \end{description}
+
+In order for this algorithm to be implemented, other algorithms such as ray-triangle intersection and Phong shading (for emitted light) must also be implemented. 
+Additionally, a BRDF probability distribution function (pdf) must be created for each surface. A reasonable BRDF pdf would be a uniform distribution, wherein \emph{any} 
+vector (x,y,z) which is in the hemisphere of the surface is randomly selected.
 
 \section{Implementation}
 Explain architectural changes.
