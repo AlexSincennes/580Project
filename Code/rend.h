@@ -100,3 +100,5 @@ int findGeneralPlaneEq(const GzCoord* (&tri)[3], GzCoord &out, float &d);
 #define C	2
 
 void normalizeGzCoord(GzCoord &v);
+
+float* TracePath(GzRay ray, int depth, GzWorldSpaceTriangles *tris, GzRender *render,int i,int j); //Remove i and j

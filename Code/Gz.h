@@ -94,6 +94,7 @@ struct  GzRay
 {
 	GzCoord         position;			/* ray position*/
 	GzCoord			direction;			/* ray direction */
+	GzColor			color;
 
 	GzRay()
 		//: position(GzCoord(0.0, 0.0, 0.0)), direction(GzCoord(0.0, 0.0, 0.0)) 

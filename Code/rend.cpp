@@ -1044,6 +1044,9 @@ int raycast_render(GzRender *render, GzWorldSpaceTriangles *tris)
 			ray.direction[2] = pixelPos[2];
 			normalizeGzCoord(ray.direction);
 
+			//float* newColor = TracePath(ray, 0, tris, render, i, j);
+
+
 			//for each triangle
 			for (int k = 0; k < tris->tris.size() - 1; k++)
 			{
@@ -1062,11 +1065,42 @@ int raycast_render(GzRender *render, GzWorldSpaceTriangles *tris)
 				triC[1] = tris->tris[k]->vertices[2]->pos[1];
 				triC[2] = tris->tris[k]->vertices[2]->pos[2];
 
-				//double t = ray_intersect(ray, triA, triB, triC);
+				GzCoord triANorm;
+				triANorm[0] = tris->tris[k]->vertices[0]->normal[0];//(tri0[0])[0];
+				triANorm[1] = tris->tris[k]->vertices[0]->normal[1];
+				triANorm[2] = tris->tris[k]->vertices[0]->normal[2];
+
+				GzCoord triBNorm;
+				triBNorm[0] = tris->tris[k]->vertices[1]->normal[0];
+				triBNorm[1] = tris->tris[k]->vertices[1]->normal[1];
+				triBNorm[2] = tris->tris[k]->vertices[1]->normal[2];
+
+				GzCoord triCNorm;
+				triCNorm[0] = tris->tris[k]->vertices[2]->normal[0];
+				triCNorm[1] = tris->tris[k]->vertices[2]->normal[1];
+				triCNorm[2] = tris->tris[k]->vertices[2]->normal[2];
+
+				const GzCoord* tri_w[3] = {};
+				tri_w[0] = &triA;
+				tri_w[1] = &triB;
+				tri_w[2] = &triC;
+
+				GzCoord* tri_n[3] = {};
+				tri_n[0] = &triANorm;
+				tri_n[1] = &triBNorm;
+				tri_n[2] = &triCNorm;
+
+				sortVerticesCW(tri_w, tri_n);
+
+				//float* newColor = TracePath(ray, 0,tris,render,i,j);
+
+				//GzPutDisplay(render->display, i, j, 4095.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+				//GzPutDisplay(render->display, i, j, ctoi(ray.color[0]), ctoi(ray.color[1]), ctoi(ray.color[2]), 1.0f, 1.0f);
+
+
 				float t_test = 0;
 				bool test = rayTriangleIntersect(ray.position, ray.direction, triA, triB, triC, t_test);
 
-				//if (t != 0)
 				if (test)
 				{
 					//This is where I should check for ray intersection
@@ -1074,9 +1108,48 @@ int raycast_render(GzRender *render, GzWorldSpaceTriangles *tris)
 					//if so fetch the colour of the surface and assign a new direction to the ray from the point of intersection
 					
 					//Create a recursive method to reflect ray and fetch colour
-					float* newColor =  TracePath(ray, 0);		
+
+					//Phong Shading
+					GzCoord intersectionPt;
+					intersectionPt[0] = ray.position[0] + (ray.direction[0] * t_test);
+					intersectionPt[1] = ray.position[1] + (ray.direction[1] * t_test);
+					intersectionPt[2] = ray.position[2] + (ray.direction[2] * t_test);
+
+					GzCoord abc = { 0, 0, 0 };
+					float d;
+					findGeneralPlaneEq(tri_w, abc, d);
+					GzDepth z = (GzDepth)std::round((-abc[A] * intersectionPt[0] - abc[B] * intersectionPt[1] - d) / abc[C]);
+					intersectionPt[2] = z;
 					
-					GzPutDisplay(render->display, i, j, 4095.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+
+					GzCoord point = { intersectionPt[0], intersectionPt[1], intersectionPt[2] };
+					GzCoord* bary = (GzCoord*)malloc(sizeof(GzCoord));
+
+					(*bary)[X] = 0; (*bary)[Y] = 0; (*bary)[Z] = 0;
+
+					//BARYCENTRIC INTERPOLATION OF NORMAL
+					barycentricCoords(triA, triB, triC, point, bary);
+
+					GzCoord pt_normal;
+					pt_normal[X] = (*bary)[X] * (*tri_n[X])[X] + (*bary)[Y] * (*tri_n[Y])[X] + (*bary)[Z] * (*tri_n[Z])[X];
+					pt_normal[Y] = (*bary)[X] * (*tri_n[X])[Y] + (*bary)[Y] * (*tri_n[Y])[Y] + (*bary)[Z] * (*tri_n[Z])[Y];
+					pt_normal[Z] = (*bary)[X] * (*tri_n[X])[Z] + (*bary)[Y] * (*tri_n[Y])[Z] + (*bary)[Z] * (*tri_n[Z])[Z];
+					//normalize in case of loss of precision
+					normalizeGzCoord(pt_normal);
+
+					GzCoord* pt_color = (GzCoord*)malloc(sizeof(GzCoord));
+					computeColorAtPt(render, point, pt_normal, pt_color);
+					ray.color[0] = (*pt_color)[0];
+					ray.color[1] = (*pt_color)[1];
+					ray.color[2] = (*pt_color)[2];
+					
+
+					//float* newColor =  TracePath(ray, 0);		
+					
+					//GzPutDisplay(render->display, i, j, 4095.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+					GzPutDisplay(render->display, i, j, ctoi(ray.color[0]), ctoi(ray.color[1]), ctoi(ray.color[2]), 1.0f, 1.0f);
+
+					free(pt_color);
 				}
 			}
 			
@@ -1088,7 +1161,7 @@ int raycast_render(GzRender *render, GzWorldSpaceTriangles *tris)
 }
 
 
-float* TracePath(GzRay ray, int depth)
+float* TracePath(GzRay ray, int depth, GzWorldSpaceTriangles *tris, GzRender *render, int i, int j)
 {
 	if (depth == MAXREFLECTANCE)
 	{
@@ -1100,24 +1173,164 @@ float* TracePath(GzRay ray, int depth)
 		return black; 
 	}
 
-	//Fetch the colour of the ray position 
-	GzColor c; // ray.colour(some way to assign the colour of the object)
+	//Find the nearest object
+	float t_test = 0;
+	float t_testMin = 1000000000.0f;
+	GzCoord triA_min;
+	GzCoord triB_min;
+	GzCoord triC_min;
+	const GzCoord* tri_w_min[3] = {};
+	GzCoord* tri_n_min[3] = {};
 
-	GzRay newray;
-	newray.position[0] = ray.position[0]; // newray origin
-	newray.position[1] = ray.position[1];
-	newray.position[2] = ray.position[2];
-
-	//newray.direction = pick a random direction 
 
 
-	// Compute the BRDF for this ray (assuming Lambertian reflection)
+	//Find nearest object
+	for (int k = 0; k < tris->tris.size() - 1; k++)
+	{
+		GzCoord triA;
+		triA[0] = tris->tris[k]->vertices[0]->pos[0];
+		triA[1] = tris->tris[k]->vertices[0]->pos[1];
+		triA[2] = tris->tris[k]->vertices[0]->pos[2];
+
+		GzCoord triB;
+		triB[0] = tris->tris[k]->vertices[1]->pos[0];
+		triB[1] = tris->tris[k]->vertices[1]->pos[1];
+		triB[2] = tris->tris[k]->vertices[1]->pos[2];
+
+		GzCoord triC;
+		triC[0] = tris->tris[k]->vertices[2]->pos[0];
+		triC[1] = tris->tris[k]->vertices[2]->pos[1];
+		triC[2] = tris->tris[k]->vertices[2]->pos[2];
+
+		GzCoord triANorm;
+		triANorm[0] = tris->tris[k]->vertices[0]->normal[0];
+		triANorm[1] = tris->tris[k]->vertices[0]->normal[1];
+		triANorm[2] = tris->tris[k]->vertices[0]->normal[2];
+
+		GzCoord triBNorm;
+		triBNorm[0] = tris->tris[k]->vertices[1]->normal[0];
+		triBNorm[1] = tris->tris[k]->vertices[1]->normal[1];
+		triBNorm[2] = tris->tris[k]->vertices[1]->normal[2];
+
+		GzCoord triCNorm;
+		triCNorm[0] = tris->tris[k]->vertices[2]->normal[0];
+		triCNorm[1] = tris->tris[k]->vertices[2]->normal[1];
+		triCNorm[2] = tris->tris[k]->vertices[2]->normal[2];
+
+		const GzCoord* tri_w[3] = {};
+		tri_w[0] = &triA;
+		tri_w[1] = &triB;
+		tri_w[2] = &triC;
+
+		GzCoord* tri_n[3] = {};
+		tri_n[0] = &triANorm;
+		tri_n[1] = &triBNorm;
+		tri_n[2] = &triCNorm;
+
+		sortVerticesCW(tri_w, tri_n);
+
+		bool test = rayTriangleIntersect(ray.position, ray.direction, triA, triB, triC, t_test);
+
+		if (test)
+		{
+			float br = 1.0f;
+			//Check min
+			if (t_test < t_testMin)
+			{
+				t_testMin = t_test;
+				triA_min[0] = triA[0];
+				triA_min[1] = triA[1];
+				triA_min[2] = triA[2];
+
+				triB_min[0] = triB[0];
+				triB_min[1] = triB[1];
+				triB_min[2] = triB[2];
+
+				triC_min[0] = triC[0];
+				triC_min[1] = triC[1];
+				triC_min[2] = triC[2];
+
+				tri_w_min[0] = &triA_min;
+				tri_w_min[1] = &triB_min;
+				tri_w_min[2] = &triC_min;
+
+				tri_n_min[0] = tri_n[0];
+				tri_n_min[1] = tri_n[1];
+				tri_n_min[2] = tri_n[2];
+
+			}
+		}
+	}
 	
-	GzCoord normalWhereObjectWasHit; //create a normal and assign
-	float cos_theta = dotProduct(newray.direction, normalWhereObjectWasHit);
-//	float* BRDF = 2 * m.reflectance * cos_theta;*/
-	float* reflected = TracePath(newray, depth + 1);
 
-	// Apply the Rendering Equation here.
-	//return emittance + (BRDF * reflected);*/
+
+	//Fetch the colour of the ray position 
+	//Phong Shading
+
+	if (tri_w_min[0] != NULL)
+	{
+		GzCoord intersectionPt;
+		intersectionPt[0] = ray.position[0] + (ray.direction[0] * t_testMin);
+		intersectionPt[1] = ray.position[1] + (ray.direction[1] * t_testMin);
+		intersectionPt[2] = ray.position[2] + (ray.direction[2] * t_testMin);
+
+		GzCoord abc = { 0, 0, 0 };
+		float d;
+		findGeneralPlaneEq(tri_w_min, abc, d);
+		GzDepth z = (GzDepth)std::round((-abc[A] * intersectionPt[0] - abc[B] * intersectionPt[1] - d) / abc[C]);
+		//intersectionPt[2] = z;
+
+
+		GzCoord point = { intersectionPt[0], intersectionPt[1], intersectionPt[2] };
+		GzCoord* bary = (GzCoord*)malloc(sizeof(GzCoord));
+
+		(*bary)[X] = 0; (*bary)[Y] = 0; (*bary)[Z] = 0;
+
+		//BARYCENTRIC INTERPOLATION OF NORMAL
+		barycentricCoords(triA_min, triB_min, triC_min, point, bary);
+
+		GzCoord pt_normal;
+		pt_normal[X] = (*bary)[X] * (*tri_n_min[X])[X] + (*bary)[Y] * (*tri_n_min[Y])[X] + (*bary)[Z] * (*tri_n_min[Z])[X];
+		pt_normal[Y] = (*bary)[X] * (*tri_n_min[X])[Y] + (*bary)[Y] * (*tri_n_min[Y])[Y] + (*bary)[Z] * (*tri_n_min[Z])[Y];
+		pt_normal[Z] = (*bary)[X] * (*tri_n_min[X])[Z] + (*bary)[Y] * (*tri_n_min[Y])[Z] + (*bary)[Z] * (*tri_n_min[Z])[Z];
+		//normalize in case of loss of precision
+		normalizeGzCoord(pt_normal);
+
+		GzCoord* pt_color = (GzCoord*)malloc(sizeof(GzCoord));
+		computeColorAtPt(render, point, pt_normal, pt_color);
+
+		ray.color[0] = (*pt_color)[0];
+		ray.color[1] = (*pt_color)[1];
+		ray.color[2] = (*pt_color)[2];
+
+		GzPutDisplay(render->display, i, j, ctoi(ray.color[0]), ctoi(ray.color[1]), ctoi(ray.color[2]), 1.0f, 1.0f);
+
+		free(pt_color);
+		GzColor c;
+		c[0] = ray.color[0];
+		c[1] = ray.color[1];
+		c[2] = ray.color[2];
+
+
+		GzRay newray;
+		newray.position[0] = intersectionPt[0]; // newray origin
+		newray.position[1] = intersectionPt[1];
+		newray.position[2] = intersectionPt[2];
+
+		//newray.direction = pick a random direction 
+
+
+		// Compute the BRDF for this ray (assuming Lambertian reflection)
+
+		GzCoord normalWhereObjectWasHit; //create a normal and assign
+		float cos_theta = dotProduct(newray.direction, normalWhereObjectWasHit);
+		//	float* BRDF = 2 * m.reflectance * cos_theta;*/
+		//float* reflected = TracePath(newray, depth + 1,tris,render);
+
+		// Apply the Rendering Equation here.
+		//return emittance + (BRDF * reflected);*/
+		return ray.position;
+	}
+	return ray.position;
+
 }
