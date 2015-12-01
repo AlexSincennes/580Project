@@ -5,7 +5,7 @@
 /* Camera defaults */
 #define	DEFAULT_FOV		35.0
 #define	DEFAULT_IM_Z	(-200)//(-10.0)  /* world coords for image plane origin */
-#define	DEFAULT_IM_Y	(0.0)//(5.0)    /* default look-at point = 0,0,0 */
+#define	DEFAULT_IM_Y	(100.0)//(5.0)    /* default look-at point = 0,0,0 */
 #define	DEFAULT_IM_X	(0.0)//(-10.0)
 
 #define	DEFAULT_AMBIENT	{0.1, 0.1, 0.1}
@@ -101,4 +101,4 @@ int findGeneralPlaneEq(const GzCoord* (&tri)[3], GzCoord &out, float &d);
 
 void normalizeGzCoord(GzCoord &v);
 
-float* TracePath(GzRay ray, int depth, GzWorldSpaceTriangles *tris, GzRender *render,int i,int j); //Remove i and j
+void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender* render,GzColor &retColor); 

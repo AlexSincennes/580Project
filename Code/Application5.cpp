@@ -236,11 +236,17 @@ int Application5::Render()
 
     // set kd,ks,ka (copied from above for now)
     /* Material property */
-    GzColor specularCoefficient = { 0.3, 0.3, 0.3 };
+	GzColor specularCoefficient = { 0.3, 0.3, 0.3 }; //Using for color
     GzColor ambientCoefficient = { 0.1, 0.1, 0.1 };
-    GzColor diffuseCoefficient = { 0.7, 0.7, 0.7 };
+    GzColor diffuseCoefficient = { 0.7, 0.7, 0.7 }; //Using for emission
 
 
+
+	int left_wall = 1;
+	int right_wall = 3;
+	int back_wall = 2;
+
+	int counter = 0;
 	while( fscanf(infile, "%s", dummy) == 1) { 	/* read in tri word */
 	    fscanf(infile, "%f %f %f %f %f %f %f %f", 
 		&(vertexList[0][0]), &(vertexList[0][1]),  
@@ -260,6 +266,38 @@ int Application5::Render()
 		&(normalList[2][0]), &(normalList[2][1]), 	
 		&(normalList[2][2]), 
 		&(uvList[2][0]), &(uvList[2][1]) ); 
+
+		/*if (counter <= left_wall)
+		{
+			specularCoefficient[0] = 1;
+			specularCoefficient[1] = 0;
+			specularCoefficient[2] = 0;
+
+			diffuseCoefficient[0] = 1;
+			diffuseCoefficient[1] = 0;
+			diffuseCoefficient[2] = 0;
+
+			ambientCoefficient[0] = 1;
+			ambientCoefficient[1] = 0;
+			ambientCoefficient[2] = 0;
+			
+			
+			
+		}
+		else if (counter <= right_wall)
+		{
+			specularCoefficient[0] = 0;
+			specularCoefficient[1] = 0;
+			specularCoefficient[2] = 1;
+
+			diffuseCoefficient[0] = 0;
+			diffuseCoefficient[1] = 0;
+			diffuseCoefficient[2] = 1;
+
+			ambientCoefficient[0] = 0;
+			ambientCoefficient[1] = 0;
+			ambientCoefficient[2] = 1;
+		}*/
 
         // untested
         GzTriangle* tri = new GzTriangle();
@@ -289,6 +327,7 @@ int Application5::Render()
         tri->vertices[2] = v2;
 
         wst->tris.push_back(tri);
+		counter++;
 	} 
 
     // DO RAYCAST HERE
