@@ -1115,7 +1115,20 @@ int raycast_render(GzRender *render, GzWorldSpaceTriangles *tris)
 
 			//float br = 1.0f;
 			//for each triangle
-			/*for (int k = 0; k < tris->tris.size() ; k++)
+			float t_test = 0;
+			float t_testMin = 1000000000.0f;
+			GzCoord triA_min;
+			GzCoord triB_min;
+			GzCoord triC_min;
+			const GzCoord* tri_w_min[3] = {};
+			GzCoord* tri_n_min[3] = {};
+			bool intersected = false;
+			GzCoord InterKs;
+			GzCoord InterKd;
+			GzCoord InterKa;
+
+			//Find nearest object intersection
+			/*for (int k = 0; k < tris->tris.size(); k++)
 			{
 				GzCoord triA;
 				triA[0] = tris->tris[k]->vertices[0]->pos[0];
@@ -1157,54 +1170,54 @@ int raycast_render(GzRender *render, GzWorldSpaceTriangles *tris)
 				tri_n[1] = &triBNorm;
 				tri_n[2] = &triCNorm;
 
-				sortVerticesCW(tri_w, tri_n);
-
-				float t_test = 0;
+				//sortVerticesCW(tri_w, tri_n);
+				t_test = 0;
 				bool test = rayTriangleIntersect(ray.position, ray.direction, triA, triB, triC, t_test);
 
 				if (test)
 				{
+					//Check min
+					if (t_test < t_testMin)
+					{
+						t_testMin = t_test;
+						//Phong Shading
+						GzCoord intersectionPt;
+						intersectionPt[0] = ray.position[0] + (ray.direction[0] * t_test);
+						intersectionPt[1] = ray.position[1] + (ray.direction[1] * t_test);
+						intersectionPt[2] = ray.position[2] + (ray.direction[2] * t_test);
 
-					//Phong Shading
-					GzCoord intersectionPt;
-					intersectionPt[0] = ray.position[0] + (ray.direction[0] * t_test);
-					intersectionPt[1] = ray.position[1] + (ray.direction[1] * t_test);
-					intersectionPt[2] = ray.position[2] + (ray.direction[2] * t_test);
+						GzCoord abc = { 0, 0, 0 };
+						float d;
+						findGeneralPlaneEq(tri_w, abc, d);
+						GzDepth z = (GzDepth)std::round((-abc[A] * intersectionPt[0] - abc[B] * intersectionPt[1] - d) / abc[C]);
+						//intersectionPt[2] = z;
 
-					GzCoord abc = { 0, 0, 0 };
-					float d;
-					findGeneralPlaneEq(tri_w, abc, d);
-					GzDepth z = (GzDepth)std::round((-abc[A] * intersectionPt[0] - abc[B] * intersectionPt[1] - d) / abc[C]);
-					intersectionPt[2] = z;
-					
 
-					GzCoord point = { intersectionPt[0], intersectionPt[1], intersectionPt[2] };
-					GzCoord* bary = (GzCoord*)malloc(sizeof(GzCoord));
+						GzCoord point = { intersectionPt[0], intersectionPt[1], intersectionPt[2] };
+						GzCoord* bary = (GzCoord*)malloc(sizeof(GzCoord));
 
-					(*bary)[X] = 0; (*bary)[Y] = 0; (*bary)[Z] = 0;
+						(*bary)[X] = 0; (*bary)[Y] = 0; (*bary)[Z] = 0;
 
-					//BARYCENTRIC INTERPOLATION OF NORMAL
-					barycentricCoords(triA, triB, triC, point, bary);
+						//BARYCENTRIC INTERPOLATION OF NORMAL
+						barycentricCoords(triA, triB, triC, point, bary);
 
-					GzCoord pt_normal;
-					pt_normal[X] = (*bary)[X] * (*tri_n[X])[X] + (*bary)[Y] * (*tri_n[Y])[X] + (*bary)[Z] * (*tri_n[Z])[X];
-					pt_normal[Y] = (*bary)[X] * (*tri_n[X])[Y] + (*bary)[Y] * (*tri_n[Y])[Y] + (*bary)[Z] * (*tri_n[Z])[Y];
-					pt_normal[Z] = (*bary)[X] * (*tri_n[X])[Z] + (*bary)[Y] * (*tri_n[Y])[Z] + (*bary)[Z] * (*tri_n[Z])[Z];
-					//normalize in case of loss of precision
-					normalizeGzCoord(pt_normal);
+						GzCoord pt_normal;
+						pt_normal[X] = (*bary)[X] * (*tri_n[X])[X] + (*bary)[Y] * (*tri_n[Y])[X] + (*bary)[Z] * (*tri_n[Z])[X];
+						pt_normal[Y] = (*bary)[X] * (*tri_n[X])[Y] + (*bary)[Y] * (*tri_n[Y])[Y] + (*bary)[Z] * (*tri_n[Z])[Y];
+						pt_normal[Z] = (*bary)[X] * (*tri_n[X])[Z] + (*bary)[Y] * (*tri_n[Y])[Z] + (*bary)[Z] * (*tri_n[Z])[Z];
+						//normalize in case of loss of precision
+						normalizeGzCoord(pt_normal);
 
-					GzCoord* pt_color = (GzCoord*)malloc(sizeof(GzCoord));
-					computeColorAtPt(render, point, pt_normal, pt_color);
-					ray.color[0] = (*pt_color)[0];
-					ray.color[1] = (*pt_color)[1];
-					ray.color[2] = (*pt_color)[2];
-					
-					
+						GzCoord* pt_color = (GzCoord*)malloc(sizeof(GzCoord));
+						computeColorAtPt(render, point, pt_normal, pt_color, render->Ks, render->Kd, render->Ka);
+						ray.color[0] = (*pt_color)[0];
+						ray.color[1] = (*pt_color)[1];
+						ray.color[2] = (*pt_color)[2];
 
-					
-					GzPutDisplay(render->display, i, j, ctoi(ray.color[0]), ctoi(ray.color[1]), ctoi(ray.color[2]), 1.0f, 1.0f);
+						GzPutDisplay(render->display, i, j, ctoi(ray.color[0]), ctoi(ray.color[1]), ctoi(ray.color[2]), 1.0f, 1.0f);
 
-					free(pt_color);
+						free(pt_color);
+					}
 				}
 			}*/
 			
@@ -1223,8 +1236,8 @@ void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender *rend
 	GzCoord triA_min;
 	GzCoord triB_min;
 	GzCoord triC_min;
-	const GzCoord* tri_w_min[3] = {};
-	GzCoord* tri_n_min[3] = {};
+    GzCoord tri_w_min[3] = {};
+	GzCoord tri_n_min[3] = {};
 	bool intersected = false;
 	GzCoord InterKs;
 	GzCoord InterKd;
@@ -1263,17 +1276,6 @@ void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender *rend
 		triCNorm[1] = tris->tris[k]->vertices[2]->normal[1];
 		triCNorm[2] = tris->tris[k]->vertices[2]->normal[2];
 
-		const GzCoord* tri_w[3] = {};
-		tri_w[0] = &triA;
-		tri_w[1] = &triB;
-		tri_w[2] = &triC;
-
-		GzCoord* tri_n[3] = {};
-		tri_n[0] = &triANorm;
-		tri_n[1] = &triBNorm;
-		tri_n[2] = &triCNorm;
-
-		//sortVerticesCW(tri_w, tri_n);
 		t_test = 0;
 		bool test = rayTriangleIntersect(ray.position, ray.direction, triA, triB, triC, t_test);
 
@@ -1296,42 +1298,39 @@ void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender *rend
 					
 				intersected = true;
 				t_testMin = t_test;
-				triA_min[0] = (*tri_w[0])[0];
-				triA_min[1] = (*tri_w[0])[1];
-				triA_min[2] = (*tri_w[0])[2];
+				
+			
+				(tri_w_min[0])[0] = triA[0];
+				(tri_w_min[0])[1] = triA[1];
+				(tri_w_min[0])[2] = triA[2];
 
-				//triA_min[1] = triA[1];
-				//triA_min[2] = triA[2];
+				(tri_w_min[1])[0] = triB[0];
+				(tri_w_min[1])[1] = triB[1];
+				(tri_w_min[1])[2] = triB[2];
 
-				//triB_min[0] = triB[0];
-				//triB_min[1] = triB[1];
-				//triB_min[2] = triB[2];
+				(tri_w_min[2])[0] = triC[0];
+				(tri_w_min[2])[1] = triC[1];
+				(tri_w_min[2])[2] = triC[2];
 
-				triB_min[0] = (*tri_w[1])[0];
-				triB_min[1] = (*tri_w[1])[1];
-				triB_min[2] = (*tri_w[1])[2];
+				
 
-				//triC_min[0] = triC[0];
-				//triC_min[1] = triC[1];
-				//triC_min[2] = triC[2];
-				triC_min[0] = (*tri_w[2])[0];
-				triC_min[1] = (*tri_w[2])[1];
-				triC_min[2] = (*tri_w[2])[2];
+				(tri_n_min[0])[0] = triANorm[0];
+				(tri_n_min[0])[1] = triANorm[1];
+				(tri_n_min[0])[2] = triANorm[2];
 
-				tri_w_min[0] = tri_w[0];
-				tri_w_min[1] = tri_w[1];
-				tri_w_min[2] = tri_w[2];
+				(tri_n_min[1])[0] = triBNorm[0];
+				(tri_n_min[1])[1] = triBNorm[1];
+				(tri_n_min[1])[2] = triBNorm[2];
 
-				tri_n_min[0] = tri_n[0];
-				tri_n_min[1] = tri_n[1];
-				tri_n_min[2] = tri_n[2];
+				(tri_n_min[2])[0] = triCNorm[0];
+				(tri_n_min[2])[1] = triCNorm[1];
+				(tri_n_min[2])[2] = triCNorm[2];
+
 
 			}
 		}
 	}
 	
-
-
 	//Fetch the colour of the ray position 
 	//Phong Shading
 	
@@ -1364,12 +1363,12 @@ void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender *rend
 		(*bary)[X] = 0; (*bary)[Y] = 0; (*bary)[Z] = 0;
 
 		//BARYCENTRIC INTERPOLATION OF NORMAL
-		barycentricCoords(triA_min, triB_min, triC_min, point, bary);
+		barycentricCoords((tri_w_min[0]), (tri_w_min[1]), (tri_w_min[2]), point, bary);
 
 		GzCoord pt_normal;
-		pt_normal[X] = (*bary)[X] * (*tri_n_min[X])[X] + (*bary)[Y] * (*tri_n_min[Y])[X] + (*bary)[Z] * (*tri_n_min[Z])[X];
-		pt_normal[Y] = (*bary)[X] * (*tri_n_min[X])[Y] + (*bary)[Y] * (*tri_n_min[Y])[Y] + (*bary)[Z] * (*tri_n_min[Z])[Y];
-		pt_normal[Z] = (*bary)[X] * (*tri_n_min[X])[Z] + (*bary)[Y] * (*tri_n_min[Y])[Z] + (*bary)[Z] * (*tri_n_min[Z])[Z];
+		pt_normal[X] = (*bary)[X] * (tri_n_min[X])[X] + (*bary)[Y] * (tri_n_min[Y])[X] + (*bary)[Z] * (tri_n_min[Z])[X];
+		pt_normal[Y] = (*bary)[X] * (tri_n_min[X])[Y] + (*bary)[Y] * (tri_n_min[Y])[Y] + (*bary)[Z] * (tri_n_min[Z])[Y];
+		pt_normal[Z] = (*bary)[X] * (tri_n_min[X])[Z] + (*bary)[Y] * (tri_n_min[Y])[Z] + (*bary)[Z] * (tri_n_min[Z])[Z];
 		//normalize in case of loss of precision
 		normalizeGzCoord(pt_normal);
 
@@ -1377,12 +1376,12 @@ void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender *rend
 		
 
 		//Using Ks for color
-		//(*pt_color)[0] = InterKs[0];
-		//(*pt_color)[1] = InterKs[1];
-		//(*pt_color)[2] = InterKs[2];
+		(*pt_color)[0] = 0.0f;// InterKa[0];
+		(*pt_color)[1] = 0.0f;// InterKa[1];
+		(*pt_color)[2] = 0.0f;// InterKa[2];
 
 		//50 percent its emitted or reflected
-		if (true)//ran_num < .5f)
+		if (ran_num < .5f)
 		{
 			//Emitted
 			computeColorAtPt(render, point, pt_normal, pt_color, InterKs, InterKd, InterKa);
@@ -1426,9 +1425,14 @@ void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender *rend
 				else 
 				{
 					//return isct.m.get_emission();
-					retColor[0] = 2 * InterKd[0];
-					retColor[1] = 2 * InterKd[1];
-					retColor[2] = 2 * InterKd[2];
+					//retColor[0] = 2 * InterKd[0];
+					//retColor[1] = 2 * InterKd[1];
+					//retColor[2] = 2 * InterKd[2];
+
+					computeColorAtPt(render, point, pt_normal, pt_color, InterKs, InterKd, InterKa);
+					retColor[0] = 2*(*pt_color)[0];
+					retColor[1] = 2*(*pt_color)[1];
+					retColor[2] = 2*(*pt_color)[2];
 
 					return;
 				}
