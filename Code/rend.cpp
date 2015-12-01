@@ -1060,17 +1060,15 @@ int raycast_render(GzRender *render, GzWorldSpaceTriangles *tris)
 			genColor[2] = 0;
 
 
-			for (int a = 0; a < 1; a++)
+			for (int a = 0; a < 4; a++)
 			{
 				GzColor c_;
 
 				if (a <= 0) //a < 0 for jitter
 				{
 					TracePath(ray, tris, 0, render, c_);
-					//c_[0] *= 4095;
-					//c_[1] *= 4095;
-					//c_[2] *= 4095;
-					GzPutDisplay(render->display, i, j, ctoi(c_[0]), ctoi(c_[1]), ctoi(c_[2]), 1.0f, 1.0f);
+
+					//GzPutDisplay(render->display, i, j, ctoi(c_[0]), ctoi(c_[1]), ctoi(c_[2]), 1.0f, 1.0f);
 
 
 				}
@@ -1091,9 +1089,7 @@ int raycast_render(GzRender *render, GzWorldSpaceTriangles *tris)
 					ray.position[1] = ray.position[1] + y_jitter;
 
 					TracePath(ray, tris, 0, render, c_);
-					//c_[0] *= 4095;
-					//c_[1] *= 4095;
-					//c_[2] *= 4095;
+
 				}
 				genColor[0] = genColor[0] + c_[0];
 				genColor[1] = genColor[1] + c_[1];
@@ -1103,15 +1099,15 @@ int raycast_render(GzRender *render, GzWorldSpaceTriangles *tris)
 			}
 
 			//1/samples
-			//genColor[0] = genColor[0] * (.25); 
-			//genColor[1] = genColor[1] * (.25);
-			//genColor[2] = genColor[2] * (.25);
+			genColor[0] = genColor[0] * (.25); 
+			genColor[1] = genColor[1] * (.25);
+			genColor[2] = genColor[2] * (.25);
 
 			//USe for one sample
 			//GzColor c_;
 			//TracePath(ray, tris, 0, render, c_);
 			
-			//GzPutDisplay(render->display, i, j, ctoi(c_[0]), ctoi(c_[1]), ctoi(c_[2]), 1.0f, 1.0f);
+			GzPutDisplay(render->display, i, j, ctoi(genColor[0]), ctoi(genColor[1]), ctoi(genColor[2]), 1.0f, 1.0f);
 
 			//float br = 1.0f;
 			//for each triangle
@@ -1376,9 +1372,9 @@ void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender *rend
 		
 
 		//Using Ks for color
-		(*pt_color)[0] = 0.0f;// InterKa[0];
-		(*pt_color)[1] = 0.0f;// InterKa[1];
-		(*pt_color)[2] = 0.0f;// InterKa[2];
+		(*pt_color)[0] = InterKa[0];
+		(*pt_color)[1] = InterKa[1];
+		(*pt_color)[2] = InterKa[2];
 
 		//50 percent its emitted or reflected
 		if (ran_num < .5f)
@@ -1389,7 +1385,6 @@ void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender *rend
 			retColor[1] = (*pt_color)[1];
 			retColor[2] = (*pt_color)[2];
 			return;
-
 
 		}
 		else
@@ -1438,7 +1433,7 @@ void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender *rend
 				}
 			}
 
-			//Get random refected ray: x = intersection pt, intersection normal, 
+			//
 			// Ideal diffuse reflection
 			GzRay reflected;// = isct.m.get_reflected_ray(ray, x, isct.n);
 

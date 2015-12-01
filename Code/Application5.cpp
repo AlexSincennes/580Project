@@ -123,10 +123,14 @@ GzMatrix	rotateY =
 	status |= GzBeginRender(m_pRender);
 
 	/* Light */
-	GzLight	light1 = { {-0.7071, 0.7071, 0}, {0.5, 0.5, 0.9} };
-	GzLight	light2 = { {0, -0.7071, -0.7071}, {0.9, 0.2, 0.3} };
-	GzLight	light3 = { {0.7071, 0.0, -0.7071}, {0.2, 0.7, 0.3} };
-	GzLight	ambientlight = { {0, 0, 0}, {0.3, 0.3, 0.3} };
+	GzLight	light1 = { { -0.7071, 0.7071, 0 }, { 0.9, 0.9, 0.9 } };
+	GzLight	light2 = { { 0, -0.7071, -0.7071 }, { 0.9, 0.9, 0.9 } };
+	GzLight	light3 = { {0.7071, 0.0, -0.7071}, {0.9, 0.9, 0.9} };
+	GzLight	ambientlight = { {0, 0, 0}, {0.9, 0.9, 0.9} };
+	//GzLight	light1 = { {-0.7071, 0.7071, 0}, {0.5, 0.5, 0.9} };
+	//GzLight	light2 = { {0, -0.7071, -0.7071}, {0.9, 0.2, 0.3} };
+	//GzLight	light3 = { {0.7071, 0.0, -0.7071}, {0.2, 0.7, 0.3} };
+	//GzLight	ambientlight = { {0, 0, 0}, {0.3, 0.3, 0.3} };
 
 	/* Material property */
 	GzColor specularCoefficient = { 0.3, 0.3, 0.3 };
@@ -146,7 +150,9 @@ GzMatrix	rotateY =
         valueListLights[1] = (GzPointer)&light2;
         nameListLights[2] = GZ_DIRECTIONAL_LIGHT;
         valueListLights[2] = (GzPointer)&light3;
-        status |= GzPutAttribute(m_pRender, 3, nameListLights, valueListLights);
+        //status |= GzPutAttribute(m_pRender, 1, nameListLights, valueListLights);
+		status |= GzPutAttribute(m_pRender, 3, nameListLights, valueListLights);
+
 
         nameListLights[0] = GZ_AMBIENT_LIGHT;
         valueListLights[0] = (GzPointer)&ambientlight;
@@ -237,9 +243,8 @@ int Application5::Render()
     // set kd,ks,ka (copied from above for now)
     /* Material property */
 	GzColor specularCoefficient = { 0.3, 0.3, 0.3 }; //Using for color
-    GzColor ambientCoefficient = { 0.1, 0.1, 0.1 };
+    GzColor ambientCoefficient = { 0.8, 0.1, 0.1 };
     GzColor diffuseCoefficient = { 0.7, 0.7, 0.7 }; //Using for emission
-
 
 
 	int left_wall = 1;
@@ -267,24 +272,21 @@ int Application5::Render()
 		&(normalList[2][2]), 
 		&(uvList[2][0]), &(uvList[2][1]) ); 
 
-		/*if (counter <= left_wall)
+		if (counter <= left_wall)
 		{
-			specularCoefficient[0] = 1;
-			specularCoefficient[1] = 0;
-			specularCoefficient[2] = 0;
-
-			diffuseCoefficient[0] = 1;
-			diffuseCoefficient[1] = 0;
-			diffuseCoefficient[2] = 0;
-
+			
+			ambientCoefficient[0] = 0;
+			ambientCoefficient[1] = 1;
+			ambientCoefficient[2] = 0;
+			
+		}
+		else
+		{
 			ambientCoefficient[0] = 1;
 			ambientCoefficient[1] = 0;
 			ambientCoefficient[2] = 0;
-			
-			
-			
 		}
-		else if (counter <= right_wall)
+		/*else if (counter <= right_wall)
 		{
 			specularCoefficient[0] = 0;
 			specularCoefficient[1] = 0;
