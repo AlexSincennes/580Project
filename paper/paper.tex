@@ -60,7 +60,7 @@ $L_{\text{o}}(\mathbf x,\, \omega_{\text{o}},\, \lambda,\, t) \,=\, L_e(\mathbf 
 \end{flushright}
 
 \par
-Monte Carlo path tracing combines the techniques of reflected or refracted rays by recursively generating other rays, but also captures the lighting relations between diffuse surfaces. Using random numbers, it simulates the integration found the rendering equation by using the Russian Roulette technique for the generation of every new ray, i.e. a random number between zero and one is generated and compared to its colour coefficients.
+Monte Carlo path tracing combines the techniques of reflected or refracted rays by recursively generating other rays, but also captures the lighting relations between diffuse surfaces. Using random numbers, it approximates the integration found the rendering equation by using the Russian Roulette technique for the generation of every new ray, i.e. a random number between zero and one is generated and compared to its colour coefficients.
 
 \section{The Monte Carlo Path Tracing Algorithm}
 The essentials of the Monte Carlo algorithm are surprisingly simple and can be summed as thus[4]:
@@ -68,13 +68,13 @@ The essentials of the Monte Carlo algorithm are surprisingly simple and can be s
 \begin{description}
   \item[1)] Generate a ray from the camera (position x,y, horizontal and vertical fields of view u,v), passing through the image plane, with weight = 1
   \item[2)] Find the point of intersection with the nearest surface
-  \item[3)] Randomly (Russian Roulette) decide whether the light is emitted or reflected (test against Kd or Ks)
-  \item[3A)] if emitted, return weight * Le
-  \item[3B)] if refleced, weight *= Ks, randomly scatter the ray according to its BRDF pdf, and go to step 2
+  \item[3)] Randomly (Russian Roulette) decide whether the light is emitted or reflected (test against this random number against the Kd of the surface):
+  \item[3A)] if emitted, return weight * shading from light source(s)
+  \item[3B)] if reflected, weight *= Ks, randomly scatter the ray according to a probability density function (pdf) approximating its bidirectional refletance distribution function (brdf), and go to step 2
 \end{description}
 
 In order for this algorithm to be implemented, other algorithms such as ray-triangle intersection and Phong shading (for emitted light) must also be implemented. 
-Additionally, a BRDF probability distribution function (pdf) must be created for each surface. A reasonable BRDF pdf would be a uniform distribution, wherein \emph{any} 
+Additionally, a BRDF pdf must be created for each surface. A reasonable BRDF pdf would be a uniform distribution, wherein \emph{any} 
 vector (x,y,z) which is in the hemisphere of the surface is randomly selected.
 
 \section{Implementation}
