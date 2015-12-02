@@ -81,16 +81,57 @@ vector (x,y,z) which is in the hemisphere of the surface is randomly selected.
 Firstly, we used the codebase of the previous assignments as a launching point for the project. Thus, the GUI and initialization, as well other elements such as the rendering parameters, the functions for displaying pixels to the screen and a number of vector and matrix functions were borrowed directly from previous assignments. However, rasterization-related functionality was thrown out and replaced with an entirely new way of rendering via rays.
 
 \section{Graphics Pipeline}
-The graphics pipeline was designed as follows: initialization is carried out, wherein global properties such as camera position and lights are defined. Then, the meshes are loaded into memory as a data structure encompassing all triangles. Each vertex in the triangle has a position, a normal, as well as information on their specular, diffuse and ambient coefficients, which differs from the global Ks, Kd and Ka found in the assignment renderer. Next, this set of all geometry is used by the path tracing technique to determine colour at each pixel, which is finally fed to the same display as the one used in previous asignments.
+The graphics pipeline was designed as follows: initialization is carried out, wherein global properties such as camera position and lights are defined. Then, the meshes are loaded into memory as a data structure encompassing all triangles. Each vertex in the triangle has a position and a normal in world space coordinates, as well as information on their specular, diffuse and ambient coefficients, which differs from the global Ks, Kd and Ka found in the assignment renderer. Next, this set of all geometry is used by the path tracing technique to determine colour at each pixel, which is finally fed to the same display as the one used in previous asignments.
 
 \section{The Path Tracing Implementation}
+Much like the Monte Carlo path tracing algorithm outlined previously, rays are cast from the camera out into the scene, through the view plane. The reason for why the process is carried out in the reverse order in comparison to the real world, in which light is emitted from a light source, bounces off surfaces and hits the film or photoreceptors (or the real-world ``image plane'') of the camera, is that in reality, the vast majority of light misses this ``image plane''. Therefore, it would be extremely inefficient to calculate the path of light beams (or photons) which would be unseen by the camera.
+\par
+If we know the vertical and horizontal fields of view of the camera, as well as its position (e, for eye) and coordinate system (u,v,n) as well as picking an arbitrary distance (d) for the view plane, we can determine the height and width of the image plane:
+
+\begin{center}
+$\tan(\theta_{vertical}/2) = \text{height} / 2d$
+\end{center}
+
+\begin{flushright}
+\par 
+(2)
+\end{flushright}
+
+\begin{center}
+$\tan(\theta_{horizontal}/2) = \text{width} / 2d$
+\end{center}
+
+\begin{flushright}
+\par 
+(3)
+\end{flushright}
+
+Then, we can find the center of the image plane, and its bottom-left corner:
+
+\begin{center}
+$c = e - n * d$
+\end{center}
+
+\begin{flushright}
+\par 
+(4)
+\end{flushright}
+
+\begin{center}
+$\text{bottom left} = c - u * \text{height} /2 - v * \text{width} /2$
+\end{center}
+
+\begin{flushright}
+\par 
+(4)
+\end{flushright}
 
 \begin{figure}[!t]
 
 \centering
 \includegraphics[width=2.5in]{raycast_viewplane}
-\caption{Casting a ray through the image plane}
-\label{raycast_viewplane}
+\caption{Casting a ray through the image plane[5]}
+\label{raycast_imageplane}
 
 \end{figure}
 
@@ -115,6 +156,10 @@ Kajiya, J. The Rendering Equation. \emph{SIGGRAPH '86}, 20(4):143-150, 1986.
 
 \bibitem {Chapter}
 \url{http://cs.brown.edu/courses/cs224/papers/mc_pathtracing.pdf} page 9
+
+\bibitem {Chapter}
+\url{http://www.cs.virginia.edu/~gfx/Courses/2010/IntroGraphics/Lectures/6-RayCasting.pdf} slide 58
+
 
 \end{thebibliography}
 
