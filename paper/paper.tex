@@ -39,7 +39,7 @@ I predict this paper to be around 4 pages since it's in a rather condensed forma
 %===================================================
 
 \section{Introduction}
-Rendering via the use of rays, such as in the Monte Carlo path tracing approach, stands in stark contrast to the rasterization of triangles, which is the faster and more common approach to rendering, and the one used throughout the assignments of the CSCI 580 course. However, with path tracing it is possible to achieve photorealism by simulating the travel of photons, rather than the approximations used in renderers that make use of rasterization. INSERT STUFF RELATING TO WHAT WE ACCOMPLISHED.
+Rendering via the use of rays, such as in the Monte Carlo path tracing approach, stands in stark contrast to the rasterization of triangles, which is the faster and more common approach to rendering, and the one used throughout the assignments of the CSCI 580 course. However, with path tracing it is possible to achieve photorealism by simulating the travel of light, which bounces off surfaces, resulting in shadows, specular as well as diffuse reflections andrefractions rather than the surface shading approach used in renderers that make use of rasterization.
 
 %===================================================
 
@@ -66,11 +66,11 @@ Monte Carlo path tracing combines the techniques of reflected or refracted rays 
 The essentials of the Monte Carlo algorithm are surprisingly simple and can be summed as thus[4]:
 
 \begin{description}
-  \item[1)] Generate a ray from the camera (position x,y, horizontal and vertical fields of view u,v), passing through the image plane, with weight = 1
+  \item[1)] Generate a ray from the camera (position x,y, horizontal and vertical fields of view u,v), passing through the image plane, with $weight = 1$
   \item[2)] Find the point of intersection with the nearest surface
   \item[3)] Randomly (Russian Roulette) decide whether the light is emitted or reflected (test against this random number against the Kd of the surface):
-  \item[3A)] if emitted, return weight * shading from light source(s)
-  \item[3B)] if reflected, weight *= Ks, randomly scatter the ray according to a probability density function (pdf) approximating its bidirectional refletance distribution function (brdf), and go to step 2
+  \item[3A)] if emitted, return $weight * shading$ from light source(s)
+  \item[3B)] if reflected, $weight \mathrel{*}= Ks$, randomly scatter the ray according to a probability density function (pdf) approximating its bidirectional refletance distribution function (brdf), and go to step 2
 \end{description}
 
 In order for this algorithm to be implemented, other algorithms such as ray-triangle intersection and Phong shading (for emitted light) must also be implemented. 
@@ -78,8 +78,12 @@ Additionally, a BRDF pdf must be created for each surface. A reasonable BRDF pdf
 vector (x,y,z) which is in the hemisphere of the surface is randomly selected.
 
 \section{Implementation}
-Explain architectural changes.
-Explain what parts of Monte Carlo we did.
+Firstly, we used the codebase of the previous assignments as a launching point for the project. Thus, the GUI and initialization, as well other elements such as the rendering parameters, the functions for displaying pixels to the screen and a number of vector and matrix functions were borrowed directly from previous assignments. However, rasterization-related functionality was thrown out and replaced with an entirely new way of rendering via rays.
+\par
+The graphics pipeline was designed as follows: initialization is carried out, wherein global properties such as camera position and lights are defined. Then, the meshes are loaded into memory as a data structure encompassing all triangles. Each vertex in the triangle has a position, a normal, as well as information on their specular, diffuse and ambient coefficients, which differs from the global Ks, Kd and Ka found in the assignment renderer.
+
+\par
+asda
 
 \section{Results}
 Pictures, maybe some figures for different numbers of rays.
