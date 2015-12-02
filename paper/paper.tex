@@ -77,16 +77,27 @@ In order for this algorithm to be implemented, other algorithms such as ray-tria
 Additionally, a BRDF pdf must be created for each surface. A reasonable BRDF pdf would be a uniform distribution, wherein \emph{any} 
 vector (x,y,z) which is in the hemisphere of the surface is randomly selected.
 
-\section{Implementation}
+\section{Application Structure}
 Firstly, we used the codebase of the previous assignments as a launching point for the project. Thus, the GUI and initialization, as well other elements such as the rendering parameters, the functions for displaying pixels to the screen and a number of vector and matrix functions were borrowed directly from previous assignments. However, rasterization-related functionality was thrown out and replaced with an entirely new way of rendering via rays.
-\par
-The graphics pipeline was designed as follows: initialization is carried out, wherein global properties such as camera position and lights are defined. Then, the meshes are loaded into memory as a data structure encompassing all triangles. Each vertex in the triangle has a position, a normal, as well as information on their specular, diffuse and ambient coefficients, which differs from the global Ks, Kd and Ka found in the assignment renderer.
 
-\par
-asda
+\section{Graphics Pipeline}
+The graphics pipeline was designed as follows: initialization is carried out, wherein global properties such as camera position and lights are defined. Then, the meshes are loaded into memory as a data structure encompassing all triangles. Each vertex in the triangle has a position, a normal, as well as information on their specular, diffuse and ambient coefficients, which differs from the global Ks, Kd and Ka found in the assignment renderer. Next, this set of all geometry is used by the path tracing technique to determine colour at each pixel, which is finally fed to the same display as the one used in previous asignments.
+
+\section{The Path Tracing Implementation}
+
+\begin{figure}[!t]
+
+\centering
+\includegraphics[width=2.5in]{raycast_viewplane}
+\caption{Casting a ray through the image plane}
+\label{raycast_viewplane}
+
+\end{figure}
 
 \section{Results}
 Pictures, maybe some figures for different numbers of rays.
+
+\section{Challenges \& Observations}
 
 
 %===================================================
