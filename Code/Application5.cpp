@@ -242,14 +242,20 @@ int Application5::Render()
 
     // set kd,ks,ka (copied from above for now)
     /* Material property */
-	GzColor specularCoefficient = { 0.3, 0.3, 0.3 }; //Using for color
+	GzColor specularCoefficient = { 0.3, 0.3, 0.3 }; 
     GzColor ambientCoefficient = { 0.8, 0.1, 0.1 };
-    GzColor diffuseCoefficient = { 0.7, 0.7, 0.7 }; //Using for emission
+    GzColor diffuseCoefficient = { 0.7, 0.7, 0.7 }; 
+	GzColor emissionCoefficient = { 0.7, 0.7, 0.7 };
+
+	int left_wall = 2;
+	int right_wall = 5;
+	int back_wall = 8;
+	int floor_wall = 11;
+	int ceil_wall = 14;
+	int light_plane = 17;
+	int front_wall = 20;
 
 
-	int left_wall = 1;
-	int right_wall = 3;
-	int back_wall = 2;
 
 	int counter = 0;
 	while( fscanf(infile, "%s", dummy) == 1) { 	/* read in tri word */
@@ -278,28 +284,120 @@ int Application5::Render()
 			ambientCoefficient[0] = 0;
 			ambientCoefficient[1] = 1;
 			ambientCoefficient[2] = 0;
+
+			diffuseCoefficient[0] = 0;
+			diffuseCoefficient[1] = 1;
+			diffuseCoefficient[2] = 0;
+
+			emissionCoefficient[0] = 0.0f;
+			emissionCoefficient[1] = 0.0f;
+			emissionCoefficient[2] = 0.0f;
+
 			
 		}
-		else
+		else if (counter <= right_wall)
 		{
-			ambientCoefficient[0] = 1;
+			ambientCoefficient[0] = 0;
 			ambientCoefficient[1] = 0;
-			ambientCoefficient[2] = 0;
-		}
-		/*else if (counter <= right_wall)
-		{
-			specularCoefficient[0] = 0;
-			specularCoefficient[1] = 0;
-			specularCoefficient[2] = 1;
+			ambientCoefficient[2] = 1;
+
+			emissionCoefficient[0] = 0.0f;
+			emissionCoefficient[1] = 0.0f;
+			emissionCoefficient[2] = 0.0f;
 
 			diffuseCoefficient[0] = 0;
 			diffuseCoefficient[1] = 0;
 			diffuseCoefficient[2] = 1;
-
-			ambientCoefficient[0] = 0;
-			ambientCoefficient[1] = 0;
+		}
+		else if (counter <= back_wall)
+		{
+			ambientCoefficient[0] = 1;
+			ambientCoefficient[1] = 1;
 			ambientCoefficient[2] = 1;
-		}*/
+
+			emissionCoefficient[0] = 0.0f;
+			emissionCoefficient[1] = 0.0f;
+			emissionCoefficient[2] = 0.0f;
+
+			diffuseCoefficient[0] = 1;
+			diffuseCoefficient[1] = 1;
+			diffuseCoefficient[2] = 1;
+		}
+		else if (counter <= floor_wall)
+		{
+			ambientCoefficient[0] = 1;
+			ambientCoefficient[1] = 1;
+			ambientCoefficient[2] = 1;
+
+			emissionCoefficient[0] = 0.0f;
+			emissionCoefficient[1] = 0.0f;
+			emissionCoefficient[2] = 0.0f;
+
+			diffuseCoefficient[0] = 1;
+			diffuseCoefficient[1] = 1;
+			diffuseCoefficient[2] = 1;
+		}
+		else if (counter <= ceil_wall)
+		{
+			ambientCoefficient[0] = 1;
+			ambientCoefficient[1] = 1;
+			ambientCoefficient[2] = 1;
+
+			emissionCoefficient[0] = 0.0f;
+			emissionCoefficient[1] = 0.0f;
+			emissionCoefficient[2] = 0.0f;
+
+			diffuseCoefficient[0] = 1;
+			diffuseCoefficient[1] = 1;
+			diffuseCoefficient[2] = 1;
+		}
+		else if (counter <= light_plane)
+		{
+			ambientCoefficient[0] = 1;
+			ambientCoefficient[1] = 1;
+			ambientCoefficient[2] = 1;
+
+			emissionCoefficient[0] = 1.0f;
+			emissionCoefficient[1] = 1.0f;
+			emissionCoefficient[2] = 1.0f;
+
+			diffuseCoefficient[0] = 1;
+			diffuseCoefficient[1] = 1;
+			diffuseCoefficient[2] = 1;
+		}
+		else if (counter <= front_wall)
+		{
+			ambientCoefficient[0] = 1;
+			ambientCoefficient[1] = 1;
+			ambientCoefficient[2] = 1;
+
+			emissionCoefficient[0] = 0.0f;
+			emissionCoefficient[1] = 0.0f;
+			emissionCoefficient[2] = 0.0f;
+
+			diffuseCoefficient[0] = 1;
+			diffuseCoefficient[1] = 1;
+			diffuseCoefficient[2] = 1;
+		}
+		else //TeaPot
+		{
+			ambientCoefficient[0] = .7;
+			ambientCoefficient[1] = .1;
+			ambientCoefficient[2] = .1;
+
+			emissionCoefficient[0] = 0.0f;
+			emissionCoefficient[1] = 0.0f;
+			emissionCoefficient[2] = 0.0f;
+
+			diffuseCoefficient[0] = .7;
+			diffuseCoefficient[1] = .1;
+			diffuseCoefficient[2] = .1;
+
+			
+
+		}
+
+
 
         // untested
         GzTriangle* tri = new GzTriangle();
@@ -307,6 +405,7 @@ int Application5::Render()
         memcpy(v0->Ka, ambientCoefficient, sizeof(GzColor));
         memcpy(v0->Kd, diffuseCoefficient, sizeof(GzColor));
         memcpy(v0->Ks, specularCoefficient, sizeof(GzColor));
+		memcpy(v0->Le, emissionCoefficient, sizeof(GzColor));
         memcpy(v0->pos, vertexList[0], sizeof(GzCoord));
         memcpy(v0->normal, normalList[0], sizeof(GzCoord));
 
@@ -314,6 +413,7 @@ int Application5::Render()
         memcpy(v1->Ka, ambientCoefficient, sizeof(GzColor));
         memcpy(v1->Kd, diffuseCoefficient, sizeof(GzColor));
         memcpy(v1->Ks, specularCoefficient, sizeof(GzColor));
+		memcpy(v1->Le, emissionCoefficient, sizeof(GzColor));
         memcpy(v1->pos, vertexList[1], sizeof(GzCoord));
         memcpy(v1->normal, normalList[1], sizeof(GzCoord));
 
@@ -321,6 +421,7 @@ int Application5::Render()
         memcpy(v2->Ka, ambientCoefficient, sizeof(GzColor));
         memcpy(v2->Kd, diffuseCoefficient, sizeof(GzColor));
         memcpy(v2->Ks, specularCoefficient, sizeof(GzColor));
+		memcpy(v2->Le, emissionCoefficient, sizeof(GzColor));
         memcpy(v2->pos, vertexList[2], sizeof(GzCoord));
         memcpy(v2->normal, normalList[2], sizeof(GzCoord));
 

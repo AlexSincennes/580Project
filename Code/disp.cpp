@@ -54,7 +54,7 @@ int GzInitDisplay(GzDisplay	*display)
 /* HW1.5 set everything to some default values - start a new frame */
 	for (int i = 0; i < display->xres; i++) {
 		for (int j = 0; j < display->yres; j++) {
-			display->fbuf[i + display->xres*j] = GzPixel{ GREY, 0, GREY, 1, INT_MAX };
+			display->fbuf[i + display->xres*j] = GzPixel{ 0.0, 0.0, 0.0, 1, INT_MAX };
 		}
 	}
 	return GZ_SUCCESS;
