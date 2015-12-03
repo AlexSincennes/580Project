@@ -69,7 +69,7 @@ The core of the Monte Carlo algorithm is recursive and has relatively few steps.
   \item[2)] Find the point of intersection with the nearest surface
   \item[3)] Determine whether the surface is a light source or not (as indicated by a special coefficients for light emittance)
   \item[3A)] if it is a light source, return $weight * light$
-  \item[3B)] if not, $weight \mathrel{*}= \frac{Ks+Kd+Ka}{3}$ and randomly scatter a new ray according to a probability density function (pdf) approximating its bidirectional refletance distribution function (brdf), and go to step 2
+  \item[3B)] if not, $weight \mathrel{*}= \frac{Ks+Kd+Ka}{3}$ and randomly scatter a new ray according to a probability density function (pdf) approximating its bidirectional reflectance  distribution function (brdf), and go to step 2
 \end{description}
 
 \newpage
@@ -82,7 +82,7 @@ vector (x,y,z) which is in the hemisphere of the surface is randomly selected.
 Firstly, we used the codebase of the previous assignments as a launching point for the project. Thus, the GUI and initialization, as well other elements such as the rendering parameters, the functions for displaying pixels to the screen and a number of vector and matrix functions were borrowed directly from previous assignments. However, rasterization-related functionality was thrown out and replaced with an entirely new way of rendering via rays.
 
 \section{Graphics Pipeline}
-The graphics pipeline was designed as follows: initialization is carried out, wherein global properties such as camera position and lights are defined. Then, the meshes are loaded into memory as a data structure encompassing all triangles. Each vertex in the triangle has a position and a normal in world space coordinates, as well as information on their specular, diffuse and ambient coefficients, which differs from the global Ks, Kd and Ka found in the assignment renderer. Also associated with vertices is a lighting coefficient for surfaces which emit light. Next, this set of all geometry is used by the path tracing technique to determine colour at each pixel, which is finally fed to the same display as the one used in previous asignments.
+The graphics pipeline was designed as follows: initialization is carried out, wherein global properties such as camera position and lights are defined. Then, the meshes are loaded into memory as a data structure encompassing all triangles. Each vertex in the triangle has a position and a normal in world space coordinates, as well as information on their specular, diffuse and ambient coefficients, which differs from the global Ks, Kd and Ka found in the assignment renderer. Also associated with vertices is a lighting coefficient for surfaces which emit light. Next, this set of all geometry is used by the path tracing technique to determine colour at each pixel, which is finally fed to the same display as the one used in previous assignments.
 
 \section{The Path Tracing Implementation}
 Much like the Monte Carlo path tracing algorithm outlined previously, rays are cast from the camera out into the scene, through the view plane. The reason for why the process is carried out in the reverse order in comparison to the real world, in which light is emitted from a light source, bounces off surfaces and hits the film or photoreceptors (or the real-world ``image plane'') of the camera, is that in reality, the vast majority of light misses this ``image plane''. Therefore, it would be extremely inefficient to calculate the path of light beams (or photons) which would be unseen by the camera.
@@ -174,13 +174,19 @@ Next, as outlined in the Monte Carlo path tracing algorithm, we recursively refl
 \par
 For each pixel for which the above process is carried out, it is repeated a certain number of times (or samples), so as to obtain an average which converges to the expected value of lighting for that pixel.
 
+\par
+As for parallelization, the ray casting approach lends itself well to being parallelized since each ray is reflected irrespective of rays casting through the same pixels (the samples), as well as irrespectively of the rays being cast through other pixels. Therefore, multithreaded was implemented, where individual ray could be calculated simultaneously
+
 
 \section{Results}
 
 To test our path tracing application, we placed a grey box floating in an environment that is similar to a typical Cornell Box, but with blue and green walls rather than red and green ones. When running the application with different values of $s$ (ray samples from each pixel) and $d$ (recursion depth), we found that the time of execution was linearly related to the amount of samples, which is unsurprising since $s$ controls the number of iterations of a single loop. When increasing $d$ however, the application appears to converge towards a given time. This can be explained by the geometry of the scene having an average number of reflections before hitting a light source. Therefore, beyond this value for d, the application does not take significantly more time to run. Additionally, an increase in $d$ also increases the brightness of the image, since a ray has a higher chance of hitting a light source if it is allowed a greater number of ``bounces'' off surfaces.
 
 \par
-The image becomes sharp at around $s=10$ for any value of $d$, and artifacts persist up to $s=40, d=4$ and $s=100,d=1$.
+Multithreading was mostly not used in the generation of the images, so that times could better be compared, although for high values of $s$ images were generated with multithreading. Since the application uses 25 threads, we see a decrease in speed by 25 times!
+
+\par
+The image becomes sharp at around $s=10$ for any value of $d$, but artifacts persist all the way up to $s=200$, $d=16$.
 
 \begin{figure}[!t]
 
@@ -212,7 +218,7 @@ The image becomes sharp at around $s=10$ for any value of $d$, and artifacts per
 \begin{figure}[!t]
 
 \centering
-\includegraphics[width=2.5in]{10s_1d_5m42s}
+\includegraphics[width=2.6in]{10s_1d_5m42s}
 \caption{10 sets of rays, recursion depth 1, time: 5m42s}
 \label{10s_1d_5m42s}
 
@@ -221,7 +227,7 @@ The image becomes sharp at around $s=10$ for any value of $d$, and artifacts per
 \begin{figure}[!t]
 
 \centering
-\includegraphics[width=2.6in]{20s_1d_11m26s}
+\includegraphics[width=2.5in]{20s_1d_11m26s}
 \caption{20 sets of rays, recursion depth 1, time: 11m26s}
 \label{20s_1d_11m26s}
 
@@ -239,8 +245,8 @@ The image becomes sharp at around $s=10$ for any value of $d$, and artifacts per
 \begin{figure}[!t]
 
 \centering
-\includegraphics[width=2.5in]{100s_1d_40m21s}
-\caption{100 sets of rays, recursion depth 1, time: 40m21s}
+\includegraphics[width=2.6in]{100s_1d_40m21s}
+\caption{100 sets of rays, recursion depth 1, time: 40m21s. Time with multithreading: 2min52s}
 \label{100s_1d_40m21s}
 
 \end{figure}
@@ -248,14 +254,23 @@ The image becomes sharp at around $s=10$ for any value of $d$, and artifacts per
 \begin{figure}[!t]
 
 \centering
-\includegraphics[width=2.6in]{100s_16d_42m10s}
-\caption{100 sets of rays, recursion depth 1, time: 42m10s}
-\label{1100s_16d_42m10s}
+\includegraphics[width=2.5in]{100s_16d_42m10s}
+\caption{100 sets of rays, recursion depth 16, time: 42m10s. Time with multithreading: 2min59s}
+\label{100s_16d_42m10s}
+
+\end{figure}
+
+\begin{figure}[!t]
+
+\centering
+\includegraphics[width=2.5in]{200s_16d_5min53s}
+\caption{200 sets of rays, recursion depth 16, time with multithreading: 5min53s}
+\label{200s_16d_5min53s}
 
 \end{figure}
 
 \section{Challenges \& Observations}
-There were many obstacles on the way to the completion of the project. Firstly, the codebase of the assignments is not particularly suited for ray casting: rather, it is suited for processing the geometry one triangle at a time since it rasterized them. Thus, a new architectured had to be written to replace the old one, which was more of a time sink than first anticipated. 
+There were many obstacles on the way to the completion of the project. Firstly, the codebase of the assignments is not particularly suited for ray casting: rather, it is suited for processing the geometry one triangle at a time since it rasterized them. Thus, a new architecture had to be written to replace the old one, which was more of a time sink than first anticipated. 
 \par
 Second, building the scene was a long and tedious process, as the geometry had to be written in the ASCII format as read by the assignment renderer. Exacerbating this process is that path tracing is an expensive algorithm: to test the placement of geometry, the addition of features in the application or to debug it, one must wait between half a minute up to an hour depending on the quality of the generated image.
 \par
@@ -267,10 +282,10 @@ Furthermore, for images where $s \ge 10$, fully dark pixels are displayed in a n
 Because of the limited scope of the project, many features that could be implemented using Monte Carlo path tracing are missing. For example, there is currently no difference between a highly specular and highly diffuse surface because of the uniform random distribution of all reflected rays. Moreover, transparent surfaces and refraction are not simulated again due to the nature of the ray reflectance in the application.
 
 \par
-Another opportunity for extension of the application is in its performance. There are two main avanues for this: improvement of runtime complexity and parallelization. In terms of runtime complexity, for determining the closest triangle intersected, one could make use of binary space partition trees rather than a brute force approach. Also, bounding volumes could be used to test for intersection with objects with complex geometries, such as the teapot, which would be encapsulated in a much more simple box shape for collision testing.
+Another opportunity for extension of the application is in its performance. In terms of runtime complexity, for determining the closest triangle intersected, one could make use of binary space partition trees rather than a brute force approach. Also, bounding volumes could be used to test for intersection with objects with complex geometries, such as the teapot, which would be encapsulated in a much simpler box shape for collision testing.
 
 \par
-As for parallelization, the ray casting approach lends itself well to being parallelized since each ray is reflected irrespective of rays casting through the same pixels (the samples), as well as irrespectively of the rays being cast through other pixels. Therefore, each individual ray could be calculated simultaneously. Incidentally, this process lends itself well to GPUs, which specialize in computing large sets of similar data.
+Although the application does use multithreading, the algorithm could also lend itself well to a GPU, which specializes in computing large sets of similar data.
 
 \par
 Also, as noted in the result sections, where an increase in $d$ increases brightness, the reflection quantity could be controlled by a random value to keep the shading consistent. This approach is called the Russian Roulette approach, wherein each successive reflected ray diminishes the chance of the next collision producing a reflected ray. This is done by comparing a random value between 0 and 1 to the current weight of the ray, which diminishes with each successive reflection.
