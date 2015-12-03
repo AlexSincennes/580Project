@@ -260,6 +260,8 @@ There were many obstacles on the way to the completion of the project. Firstly, 
 Second, building the scene was a long and tedious process, as the geometry had to be written in the ASCII format as read by the assignment renderer. Exacerbating this process is that path tracing is an expensive algorithm: to test the placement of geometry, the addition of features in the application or to debug it, one must wait between half a minute up to an hour depending on the quality of the generated image.
 \par
 Additionally, until a late phase of the project, we opted to continue to use the teapot that was featured in all previous assignments. However, since the teapot contains a great number of triangles, it was  expensive to calculate which triangle intersecting with the ray was the closest, since it required iterating through all the triangles. Since this operation was conducted per ray cast, the run-time cost of rendering the teapot was very high.
+\par
+Furthermore, for images where $s \ge 10$, fully dark pixels are displayed in a noticeable, somewhat circular pattern. This could be the result of the uniform random reflectance along the semi-circular hemisphere, although there is currently not a definitive answer to why these artifacts appear.
 
 \section{Further Work}
 Because of the limited scope of the project, many features that could be implemented using Monte Carlo path tracing are missing. For example, there is currently no difference between a highly specular and highly diffuse surface because of the uniform random distribution of all reflected rays. Moreover, transparent surfaces and refraction are not simulated again due to the nature of the ray reflectance in the application.
@@ -272,9 +274,6 @@ As for parallelization, the ray casting approach lends itself well to being para
 
 \par
 Also, as noted in the result sections, where an increase in $d$ increases brightness, the reflection quantity could be controlled by a random value to keep the shading consistent. This approach is called the Russian Roulette approach, wherein each successive reflected ray diminishes the chance of the next collision producing a reflected ray. This is done by comparing a random value between 0 and 1 to the current weight of the ray, which diminishes with each successive reflection.
-
-\par
-Furthermore, for images where $s \ge 10$, fully dark pixels are displayed in a noticeable, somewhat circular pattern. This could be the result of the uniform random reflectance along the semi-circular hemisphere, although there is currently not a definitive answer to why these artifacts appear.
 
 %===================================================
 
