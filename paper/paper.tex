@@ -60,20 +60,20 @@ $L_{\text{o}}(\mathbf x,\, \omega_{\text{o}},\, \lambda,\, t) \,=\, L_e(\mathbf 
 \end{flushright}
 
 \par
-Monte Carlo path tracing combines the techniques of reflected or refracted rays by recursively generating other rays, but also captures the lighting relations between diffuse surfaces. Using random numbers, it approximates the integration found the rendering equation by using the Russian Roulette technique for the generation of every new ray, i.e. a random number between zero and one is generated and compared to its colour coefficients.
+Monte Carlo path tracing combines the techniques of reflected or refracted rays by recursively generating other rays, but also captures the lighting relations between diffuse surfaces. We implemented it with ray reflections in a random uniform fashion, with a deterministic number of reflected rays or until the ray hits a light source.
 
 \section{The Monte Carlo Path Tracing Algorithm}
-The essentials of the Monte Carlo algorithm are surprisingly simple and can be summed as thus[4]:
+The core of the Monte Carlo algorithm is recursive and has relatively few steps. It can be summed as thus(modified version of an algorithm found in [4]):
 
 \begin{description}
   \item[1)] Generate a ray from the camera (position x,y, horizontal and vertical fields of view u,v), passing through the image plane, with $weight = 1$
   \item[2)] Find the point of intersection with the nearest surface
-  \item[3)] Randomly (Russian Roulette) decide whether the light is emitted or reflected (test against this random number against the Kd of the surface):
-  \item[3A)] if emitted, return $weight * shading$ from light source(s)
-  \item[3B)] if reflected, $weight \mathrel{*}= Ks$, randomly scatter the ray according to a probability density function (pdf) approximating its bidirectional refletance distribution function (brdf), and go to step 2
+  \item[3)] Determine whether the surface is a light source or not (as indicated by a special coefficients for light emittance)
+  \item[3A)] if it is a light source, return $weight * light$
+  \item[3B)] if it is not, $weight \mathrel{*}= (Ks+Kd+Ka)/3$ and randomly scatter a new ray according to a probability density function (pdf) approximating its bidirectional refletance distribution function (brdf), and go to step 2
 \end{description}
 
-In order for this algorithm to be implemented, other algorithms such as ray-triangle intersection and Phong shading (for emitted light) must also be implemented. 
+In order for this algorithm to be implemented, other algorithms such as ray-triangle intersection must also be implemented. 
 Additionally, a BRDF pdf must be created for each surface. A reasonable BRDF pdf would be a uniform distribution, wherein \emph{any} 
 vector (x,y,z) which is in the hemisphere of the surface is randomly selected.
 
@@ -81,7 +81,7 @@ vector (x,y,z) which is in the hemisphere of the surface is randomly selected.
 Firstly, we used the codebase of the previous assignments as a launching point for the project. Thus, the GUI and initialization, as well other elements such as the rendering parameters, the functions for displaying pixels to the screen and a number of vector and matrix functions were borrowed directly from previous assignments. However, rasterization-related functionality was thrown out and replaced with an entirely new way of rendering via rays.
 
 \section{Graphics Pipeline}
-The graphics pipeline was designed as follows: initialization is carried out, wherein global properties such as camera position and lights are defined. Then, the meshes are loaded into memory as a data structure encompassing all triangles. Each vertex in the triangle has a position and a normal in world space coordinates, as well as information on their specular, diffuse and ambient coefficients, which differs from the global Ks, Kd and Ka found in the assignment renderer. Next, this set of all geometry is used by the path tracing technique to determine colour at each pixel, which is finally fed to the same display as the one used in previous asignments.
+The graphics pipeline was designed as follows: initialization is carried out, wherein global properties such as camera position and lights are defined. Then, the meshes are loaded into memory as a data structure encompassing all triangles. Each vertex in the triangle has a position and a normal in world space coordinates, as well as information on their specular, diffuse and ambient coefficients, which differs from the global Ks, Kd and Ka found in the assignment renderer. Also associated with vertices is a lighting coefficient for surfaces which emit light. Next, this set of all geometry is used by the path tracing technique to determine colour at each pixel, which is finally fed to the same display as the one used in previous asignments.
 
 \section{The Path Tracing Implementation}
 Much like the Monte Carlo path tracing algorithm outlined previously, rays are cast from the camera out into the scene, through the view plane. The reason for why the process is carried out in the reverse order in comparison to the real world, in which light is emitted from a light source, bounces off surfaces and hits the film or photoreceptors (or the real-world ``image plane'') of the camera, is that in reality, the vast majority of light misses this ``image plane''. Therefore, it would be extremely inefficient to calculate the path of light beams (or photons) which would be unseen by the camera.
@@ -132,6 +132,8 @@ Finally, with knowledge of the image resolution ($w_{i}$ and $h_{i}$), we can fi
 $\text{pixel}_{(i,j)}= BL + u * i * w / w_{i} + v * j * h/h_{i}$
 \end{center}
 
+Thus, with the position of the pixel we want to draw on the image plane, and the position of the camera, we can draw a ray starting at the camera, passing through that pixel, and into the environment.
+
 \begin{flushright}
 \par 
 (6)
@@ -147,15 +149,43 @@ $\text{pixel}_{(i,j)}= BL + u * i * w / w_{i} + v * j * h/h_{i}$
 
 \end{figure}
 
+\par
+Once the ray is defined, the closest triangle (in z) that intersects with the ray is found. This is done in a brute-force approach, iterating through all triangles.
+Next, as outlined in the Monte Carlo path tracing algorithm, we recursively reflect the ray up to a set maximum amount of rays (depth), unless the ray hits a light source, in which case the lighting is returned. If no light source is found with the maximum depth, the pixel is deemed to have received no light and is shaded as black.
+
+\begin{figure}[!t]
+
+\centering
+\includegraphics[width=2.5in]{shad2-indirectdiffusehemi.png}
+\caption{Random uniform creation of rays in the hemisphere of the collision[6]}
+\label{hemisphere rays}
+
+\end{figure}
+
+\begin{figure}[!t]
+
+\centering
+\includegraphics[width=2.5in]{recursive_rays}
+\caption{Recursively casting rays between surfaces from the camera to a light source[5]}
+\label{recursive_rays}
+
+\end{figure}
+
+\par
+For each pixel for which the above process is carried out, it is repeated a certain number of times (or samples), so as to obtain an average which converges to the expected value of lighting for that pixel.
+
+
 \section{Results}
 Pictures, maybe some figures for different numbers of rays.
 
 \section{Challenges \& Observations}
 
+\section{Further Work}
+Because of the limited scope of the project, many features that could be implemented using Monte Carlo path tracing are missing. For example, there is currently no difference between a highly specular and highly diffuse surface because of the uniform random distribution of all reflected rays. Moreover, transparent surfaces and refraction are not simulated again due to the nature of the ray reflectance in the application.
 
 %===================================================
 
-\begin{thebibliography}{4}
+\begin{thebibliography}{5}
 
 \bibitem{Appel}
 Appel, A. Some techniques for shading machine renderings of solids. \emph{AFIPS '68 (Spring) Proceedings of the April 30--May 2, 1968, spring joint computer conference}:37-45, 1968.
@@ -166,12 +196,14 @@ Whitted, T. An improved illumination model for shaded display. \emph{Comunicatio
 \bibitem {Kajiya}
 Kajiya, J. The Rendering Equation. \emph{SIGGRAPH '86}, 20(4):143-150, 1986.
 
-\bibitem {Chapter}
-\url{http://cs.brown.edu/courses/cs224/papers/mc_pathtracing.pdf} page 9
+\bibitem {Brown}
+\url{http://cs.brown.edu/courses/cs224/papers/mc_pathtracing.pdf}
 
-\bibitem {Chapter}
-\url{http://www.cs.virginia.edu/~gfx/Courses/2010/IntroGraphics/Lectures/6-RayCasting.pdf} slide 58
+\bibitem {Virginia}
+\url{http://www.cs.virginia.edu/~gfx/Courses/2010/IntroGraphics/Lectures/6-RayCasting.pdf}
 
+\bibitem {Scratchapixel}
+\url{http://www.scratchapixel.com/lessons/3d-basic-rendering/global-illumination-path-tracing/global-illumination-path-tracing-practical-implementation}
 
 \end{thebibliography}
 
