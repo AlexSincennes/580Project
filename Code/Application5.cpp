@@ -12,6 +12,7 @@
 #include "Gz.h"
 #include "disp.h"
 #include "rend.h"
+#include "time.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -21,7 +22,6 @@ static char THIS_FILE[]=__FILE__;
 
 #define INFILE  "ppot.asc"
 #define OUTFILE "output.ppm"
-
 
 extern int tex_fun(float u, float v, GzColor color); /* image texture function */
 extern int ptex_fun(float u, float v, GzColor color); /* procedural texture function */
@@ -127,11 +127,6 @@ GzMatrix	rotateY =
 	GzLight	light2 = { { 0, -0.7071, -0.7071 }, { 0.9, 0.9, 0.9 } };
 	GzLight	light3 = { {0.7071, 0.0, -0.7071}, {0.9, 0.9, 0.9} };
 	GzLight	ambientlight = { {0, 0, 0}, {0.9, 0.9, 0.9} };
-	//GzLight	light1 = { {-0.7071, 0.7071, 0}, {0.5, 0.5, 0.9} };
-	//GzLight	light2 = { {0, -0.7071, -0.7071}, {0.9, 0.2, 0.3} };
-	//GzLight	light3 = { {0.7071, 0.0, -0.7071}, {0.2, 0.7, 0.3} };
-	//GzLight	ambientlight = { {0, 0, 0}, {0.3, 0.3, 0.3} };
-
 	/* Material property */
 	GzColor specularCoefficient = { 0.3, 0.3, 0.3 };
 	GzColor ambientCoefficient = { 0.1, 0.1, 0.1 };
@@ -209,6 +204,8 @@ int Application5::Render()
 	char		dummy[256]; 
 	int			status; 
 
+	time_t start, stop;
+	time(&start);
 
 	/* Initialize Display */
 	status |= GzInitDisplay(m_pDisplay); 
@@ -285,9 +282,9 @@ int Application5::Render()
 			ambientCoefficient[1] = 1;
 			ambientCoefficient[2] = 0;
 
-			diffuseCoefficient[0] = 0;
-			diffuseCoefficient[1] = 1;
-			diffuseCoefficient[2] = 0;
+			diffuseCoefficient[0] = .25;
+			diffuseCoefficient[1] = .75;
+			diffuseCoefficient[2] = .25;
 
 			emissionCoefficient[0] = 0.0f;
 			emissionCoefficient[1] = 0.0f;
@@ -301,55 +298,55 @@ int Application5::Render()
 			ambientCoefficient[1] = 0;
 			ambientCoefficient[2] = 1;
 
-			emissionCoefficient[0] = 0.0f;
+			emissionCoefficient[0] = 0.0;
 			emissionCoefficient[1] = 0.0f;
 			emissionCoefficient[2] = 0.0f;
 
-			diffuseCoefficient[0] = 0;
-			diffuseCoefficient[1] = 0;
-			diffuseCoefficient[2] = 1;
+			diffuseCoefficient[0] = .25;
+			diffuseCoefficient[1] = .25;
+			diffuseCoefficient[2] = .75;
 		}
 		else if (counter <= back_wall)
 		{
-			ambientCoefficient[0] = 1;
-			ambientCoefficient[1] = 1;
-			ambientCoefficient[2] = 1;
+			ambientCoefficient[0] = .75;
+			ambientCoefficient[1] = .75;
+			ambientCoefficient[2] = .75;
 
 			emissionCoefficient[0] = 0.0f;
 			emissionCoefficient[1] = 0.0f;
 			emissionCoefficient[2] = 0.0f;
 
-			diffuseCoefficient[0] = 1;
-			diffuseCoefficient[1] = 1;
-			diffuseCoefficient[2] = 1;
+			diffuseCoefficient[0] = .75;
+			diffuseCoefficient[1] = .75;
+			diffuseCoefficient[2] = .75;
 		}
 		else if (counter <= floor_wall)
 		{
-			ambientCoefficient[0] = 1;
-			ambientCoefficient[1] = 1;
-			ambientCoefficient[2] = 1;
+			ambientCoefficient[0] = .75;
+			ambientCoefficient[1] = .75;
+			ambientCoefficient[2] = .75;
 
 			emissionCoefficient[0] = 0.0f;
 			emissionCoefficient[1] = 0.0f;
 			emissionCoefficient[2] = 0.0f;
 
-			diffuseCoefficient[0] = 1;
-			diffuseCoefficient[1] = 1;
-			diffuseCoefficient[2] = 1;
+			diffuseCoefficient[0] = .75;
+			diffuseCoefficient[1] = .75;
+			diffuseCoefficient[2] = .75;
 		}
 		else if (counter <= ceil_wall)
 		{
-			ambientCoefficient[0] = 1;
-			ambientCoefficient[1] = 1;
-			ambientCoefficient[2] = 1;
+			ambientCoefficient[0] = .75;
+			ambientCoefficient[1] = .75;
+			ambientCoefficient[2] = .75;
 
 			emissionCoefficient[0] = 0.0f;
 			emissionCoefficient[1] = 0.0f;
 			emissionCoefficient[2] = 0.0f;
 
-			diffuseCoefficient[0] = 1;
-			diffuseCoefficient[1] = 1;
-			diffuseCoefficient[2] = 1;
+			diffuseCoefficient[0] = .75;
+			diffuseCoefficient[1] = .75;
+			diffuseCoefficient[2] = .75;
 		}
 		else if (counter <= light_plane)
 		{
@@ -357,9 +354,9 @@ int Application5::Render()
 			ambientCoefficient[1] = 1;
 			ambientCoefficient[2] = 1;
 
-			emissionCoefficient[0] = 1.0f;
-			emissionCoefficient[1] = 1.0f;
-			emissionCoefficient[2] = 1.0f;
+			emissionCoefficient[0] = 2.0f;
+			emissionCoefficient[1] = 2.0f;
+			emissionCoefficient[2] = 2.0f;
 
 			diffuseCoefficient[0] = 1;
 			diffuseCoefficient[1] = 1;
@@ -367,17 +364,17 @@ int Application5::Render()
 		}
 		else if (counter <= front_wall)
 		{
-			ambientCoefficient[0] = 1;
-			ambientCoefficient[1] = 1;
-			ambientCoefficient[2] = 1;
+			ambientCoefficient[0] = .75;
+			ambientCoefficient[1] = .75;
+			ambientCoefficient[2] = .75;
 
 			emissionCoefficient[0] = 0.0f;
 			emissionCoefficient[1] = 0.0f;
 			emissionCoefficient[2] = 0.0f;
 
-			diffuseCoefficient[0] = 1;
-			diffuseCoefficient[1] = 1;
-			diffuseCoefficient[2] = 1;
+			diffuseCoefficient[0] = .75;
+			diffuseCoefficient[1] = .75;
+			diffuseCoefficient[2] = .75;
 		}
 		else //TeaPot
 		{
@@ -441,6 +438,15 @@ int Application5::Render()
 	GzFlushDisplay2File(outfile, m_pDisplay); 	/* write out or update display to file*/
 	GzFlushDisplay2FrameBuffer(m_pFrameBuffer, m_pDisplay);	// write out or update display to frame buffer
 
+	time(&stop);
+	double diff = difftime(stop,start);
+	int hrs = (int)diff / 3600;
+	int mins = ((int)diff / 60) - (hrs * 60);
+	int secs = (int)diff - (hrs * 3600) - (mins*60);
+	printf("\r\nTime taken: %i hrs, %i mins, %i secs \n\n", hrs,mins,secs);
+	CString str;
+	str.Format("\r\nTime taken: %i hrs, %i mins, %i secs \n\n", hrs, mins, secs);
+	//AfxMessageBox(str); //AfxMessageBox("\r\nTime taken: %i hrs, %i mins, %i secs \n\n", hrs, mins, secs);
 	/* 
 	 * Close file
 	 */ 
@@ -450,7 +456,9 @@ int Application5::Render()
 
 	if( fclose( outfile ) )
       AfxMessageBox( "The output file was not closed\n" );
- 
+
+
+	AfxMessageBox(str);
 	if (status) 
 		return(GZ_FAILURE); 
 	else 
