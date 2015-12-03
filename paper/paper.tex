@@ -33,8 +33,7 @@
 %===================================================
 
 \section{Abstract}
-This will depend on our results.\\
-I predict this paper to be around 4 pages since it's in a rather condensed format.
+A Monte Carlo path tracing renderer was created using the assignment application as a base. Realistic images featuring shadows and diffuse interreflections become crisp beyond 20 sets of generated rays, with a recursion depth greater than or equal to 4.
 
 %===================================================
 
@@ -180,7 +179,7 @@ For each pixel for which the above process is carried out, it is repeated a cert
 To test our path tracing application, we placed a grey box floating in an environment that is similar to a typical Cornell Box, but with blue and green walls rather than red and green ones. When running the application with different values of $s$ (ray samples from each pixel) and $d$ (recursion depth), we found that the time of execution was linearly related to the amount of samples, which is unsurprising since $s$ controls the number of iterations of a single loop. When increasing $d$ however, the application appears to converge towards a given time. This can be explained by the geometry of the scene having an average number of reflections before hitting a light source. Therefore, beyond this value for d, the application does not take significantly more time to run.
 
 \par
-The image becomes sharp at around $s=10$ for any value of $d$, and artifacts persist beyond $s=40, d=4$.
+The image becomes sharp at around $s=10$ for any value of $d$, and artifacts persist up to $s=40, d=4$ and $s=100,d=1$.
 
 \begin{figure}[!t]
 
@@ -236,10 +235,30 @@ The image becomes sharp at around $s=10$ for any value of $d$, and artifacts per
 
 \end{figure}
 
+\begin{figure}[!t]
+
+\centering
+\includegraphics[width=2.5in]{100s_1d_40m21s}
+\caption{100 sets of rays, recursion depth 1, time: 40m21s}
+\label{100s_1d_40m21s}
+
+\end{figure}
+
 \section{Challenges \& Observations}
+There were many obstacles on the way to the completion of the project. Firstly, the codebase of the assignments is not particularly suited for ray casting: rather, it is suited for processing the geometry one triangle at a time since it rasterized them. Thus, a new architectured had to be written to replace the old one, which was more of a time sink than first anticipated. 
+\par
+Second, building the scene was a long and tedious process, as the geometry had to be written in the ASCII format as read by the assignment renderer. Exacerbating this process is that path tracing is an expensive algorithm: to test the placement of geometry, the addition of features in the application or to debug it, one must wait between half a minute up to an hour depending on the quality of the generated image.
+\par
+Additionally, until a late phase of the project, we opted to continue to use the teapot that was featured in all previous assignments. However, since the teapot contains a great number of triangles, it was  expensive to calculate which triangle intersecting with the ray was the closest, since it required iterating through all the triangles. Since this operation was conducted per ray cast, the run-time cost of rendering the teapot was very high.
 
 \section{Further Work}
 Because of the limited scope of the project, many features that could be implemented using Monte Carlo path tracing are missing. For example, there is currently no difference between a highly specular and highly diffuse surface because of the uniform random distribution of all reflected rays. Moreover, transparent surfaces and refraction are not simulated again due to the nature of the ray reflectance in the application.
+
+\par
+Another opportunity for extension of the application is in its performance. There are two main avanues for this: improvement of runtime complexity and parallelization. In terms of runtime complexity, for determining the closest triangle intersected, one could make use of binary space partition trees rather than a brute force approach. Also, bounding volumes could be used to test for intersection with objects with complex geometries, such as the teapot, which would be encapsulated in a much more simple box shape for collision testing.
+
+\par
+As for parallelization, the ray casting approach lends itself well to being parallelized since each ray is reflected irrespective of rays casting through the same pixels (the samples), as well as irrespectively of the rays being cast through other pixels. Therefore, each individual ray could be calculated simultaneously. Incidentally, this process lends itself well to GPUs, which specialize in computing large sets of similar data.
 
 %===================================================
 
