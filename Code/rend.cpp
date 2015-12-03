@@ -10,8 +10,8 @@
 
 #define PI 3.141592653589793f
 #define MAXREFLECTANCE 10
-const int RAY_SAMPLES = 40;
-const int RAY_DEPTH = 2;
+const int RAY_SAMPLES = 10;
+const int RAY_DEPTH = 1;
 // HW3 helpers
 float degToRad(float deg) {
     return deg * PI / 180.0f;
@@ -660,7 +660,7 @@ int sortVerticesCW( const GzCoord* (&tri)[3], GzCoord* (&normals)[3]) {
     return GZ_SUCCESS;
 }
 
-void computeColorAtPt(GzRender *render, const GzCoord &pt, GzCoord &normal, GzCoord *color, const GzCoord &Ks, const GzCoord &Kd, const GzCoord &Ka) {
+void computeColorAtPt(GzRender *render, const GzCoord &pt, GzCoord &normal, GzCoord &color, const GzCoord &Ks, const GzCoord &Kd, const GzCoord &Ka) {
 
     GzCoord E;
     E[X] = pt[X] - render->camera.position[X];
@@ -731,9 +731,9 @@ void computeColorAtPt(GzRender *render, const GzCoord &pt, GzCoord &normal, GzCo
     sum_diff[Y] *= Kd[Y];
     sum_diff[Z] *= Kd[Z];
 
-    (*color)[X] = Ka[X] * render->ambientlight.color[X] + sum_diff[X] + sum_spec[X];
-    (*color)[Y] = Ka[Y] * render->ambientlight.color[Y] + sum_diff[Y] + sum_spec[Y];
-    (*color)[Z] = Ka[Z] * render->ambientlight.color[Z] + sum_diff[Z] + sum_spec[Z];
+    (color)[X] = Ka[X] * render->ambientlight.color[X] + sum_diff[X] + sum_spec[X];
+    (color)[Y] = Ka[Y] * render->ambientlight.color[Y] + sum_diff[Y] + sum_spec[Y];
+    (color)[Z] = Ka[Z] * render->ambientlight.color[Z] + sum_diff[Z] + sum_spec[Z];
 
 
 }
@@ -1095,6 +1095,7 @@ void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender *rend
 	GzCoord InterKd;
 	GzCoord InterKa;
 	GzCoord InterLe;
+	int intersectIndex = 0;
 
 	//Find nearest object intersection
 	for (int k = 0; k < tris->tris.size() ; k++)
@@ -1114,20 +1115,6 @@ void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender *rend
 		triC[1] = tris->tris[k]->vertices[2]->pos[1];
 		triC[2] = tris->tris[k]->vertices[2]->pos[2];
 
-		GzCoord triANorm;
-		triANorm[0] = tris->tris[k]->vertices[0]->normal[0];
-		triANorm[1] = tris->tris[k]->vertices[0]->normal[1];
-		triANorm[2] = tris->tris[k]->vertices[0]->normal[2];
-
-		GzCoord triBNorm;
-		triBNorm[0] = tris->tris[k]->vertices[1]->normal[0];
-		triBNorm[1] = tris->tris[k]->vertices[1]->normal[1];
-		triBNorm[2] = tris->tris[k]->vertices[1]->normal[2];
-
-		GzCoord triCNorm;
-		triCNorm[0] = tris->tris[k]->vertices[2]->normal[0];
-		triCNorm[1] = tris->tris[k]->vertices[2]->normal[1];
-		triCNorm[2] = tris->tris[k]->vertices[2]->normal[2];
 
 		t_test = 0;
 		bool test = rayTriangleIntersect(ray.position, ray.direction, triA, triB, triC, t_test);
@@ -1137,53 +1124,11 @@ void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender *rend
 			//Check min
 			if (t_test < t_testMin)
 			{
-				InterKd[0] = tris->tris[k]->vertices[1]->Kd[0];
-				InterKd[1] = tris->tris[k]->vertices[1]->Kd[1];
-				InterKd[2] = tris->tris[k]->vertices[1]->Kd[2];
 
-				InterKs[0] = tris->tris[k]->vertices[1]->Ks[0];
-				InterKs[1] = tris->tris[k]->vertices[1]->Ks[1];
-				InterKs[2] = tris->tris[k]->vertices[1]->Ks[2];
-
-				InterKa[0] = tris->tris[k]->vertices[1]->Ka[0];
-				InterKa[1] = tris->tris[k]->vertices[1]->Ka[1];
-				InterKa[2] = tris->tris[k]->vertices[1]->Ka[2];
-
-				InterLe[0] = tris->tris[k]->vertices[1]->Le[0];
-				InterLe[1] = tris->tris[k]->vertices[1]->Le[1];
-				InterLe[2] = tris->tris[k]->vertices[1]->Le[2];
 					
 				intersected = true;
 				t_testMin = t_test;
-				
-			
-				(tri_w_min[0])[0] = triA[0];
-				(tri_w_min[0])[1] = triA[1];
-				(tri_w_min[0])[2] = triA[2];
-
-				(tri_w_min[1])[0] = triB[0];
-				(tri_w_min[1])[1] = triB[1];
-				(tri_w_min[1])[2] = triB[2];
-
-				(tri_w_min[2])[0] = triC[0];
-				(tri_w_min[2])[1] = triC[1];
-				(tri_w_min[2])[2] = triC[2];
-
-				
-
-				(tri_n_min[0])[0] = triANorm[0];
-				(tri_n_min[0])[1] = triANorm[1];
-				(tri_n_min[0])[2] = triANorm[2];
-
-				(tri_n_min[1])[0] = triBNorm[0];
-				(tri_n_min[1])[1] = triBNorm[1];
-				(tri_n_min[1])[2] = triBNorm[2];
-
-				(tri_n_min[2])[0] = triCNorm[0];
-				(tri_n_min[2])[1] = triCNorm[1];
-				(tri_n_min[2])[2] = triCNorm[2];
-
-
+				intersectIndex = k;
 			}
 		}
 	}
@@ -1192,6 +1137,50 @@ void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender *rend
 	//Phong Shading
 	if (intersected)
 	{
+		InterKd[0] = tris->tris[intersectIndex]->vertices[1]->Kd[0];
+		InterKd[1] = tris->tris[intersectIndex]->vertices[1]->Kd[1];
+		InterKd[2] = tris->tris[intersectIndex]->vertices[1]->Kd[2];
+
+		InterKs[0] = tris->tris[intersectIndex]->vertices[1]->Ks[0];
+		InterKs[1] = tris->tris[intersectIndex]->vertices[1]->Ks[1];
+		InterKs[2] = tris->tris[intersectIndex]->vertices[1]->Ks[2];
+
+		InterKa[0] = tris->tris[intersectIndex]->vertices[1]->Ka[0];
+		InterKa[1] = tris->tris[intersectIndex]->vertices[1]->Ka[1];
+		InterKa[2] = tris->tris[intersectIndex]->vertices[1]->Ka[2];
+
+		InterLe[0] = tris->tris[intersectIndex]->vertices[1]->Le[0];
+		InterLe[1] = tris->tris[intersectIndex]->vertices[1]->Le[1];
+		InterLe[2] = tris->tris[intersectIndex]->vertices[1]->Le[2];
+
+
+		(tri_w_min[0])[0] = tris->tris[intersectIndex]->vertices[0]->pos[0];
+		(tri_w_min[0])[1] = tris->tris[intersectIndex]->vertices[0]->pos[1];
+		(tri_w_min[0])[2] = tris->tris[intersectIndex]->vertices[0]->pos[2];
+
+		(tri_w_min[1])[0] = tris->tris[intersectIndex]->vertices[1]->pos[0];
+		(tri_w_min[1])[1] = tris->tris[intersectIndex]->vertices[1]->pos[1];
+		(tri_w_min[1])[2] = tris->tris[intersectIndex]->vertices[1]->pos[2];
+
+		(tri_w_min[2])[0] = tris->tris[intersectIndex]->vertices[2]->pos[0];
+		(tri_w_min[2])[1] = tris->tris[intersectIndex]->vertices[2]->pos[1];
+		(tri_w_min[2])[2] = tris->tris[intersectIndex]->vertices[2]->pos[2];
+
+		
+		(tri_n_min[0])[0] = tris->tris[intersectIndex]->vertices[0]->normal[0];
+		(tri_n_min[0])[1] = tris->tris[intersectIndex]->vertices[0]->normal[1];
+		(tri_n_min[0])[2] = tris->tris[intersectIndex]->vertices[0]->normal[2];
+
+		(tri_n_min[1])[0] = tris->tris[intersectIndex]->vertices[1]->normal[0];
+		(tri_n_min[1])[1] = tris->tris[intersectIndex]->vertices[1]->normal[1];
+		(tri_n_min[1])[2] = tris->tris[intersectIndex]->vertices[1]->normal[2];
+
+		(tri_n_min[2])[0] = tris->tris[intersectIndex]->vertices[2]->normal[0];
+		(tri_n_min[2])[1] = tris->tris[intersectIndex]->vertices[2]->normal[1];
+		(tri_n_min[2])[2] = tris->tris[intersectIndex]->vertices[2]->normal[2];
+
+
+
 		//Randomly Decide whether light is emiited or reflected
 		//Choose random number between 0 and 1
 
@@ -1208,21 +1197,14 @@ void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender *rend
 		
 
 		GzCoord point = { intersectionPt[0], intersectionPt[1], intersectionPt[2] };
-		GzCoord* bary = (GzCoord*)malloc(sizeof(GzCoord));
-
-		(*bary)[X] = 0; (*bary)[Y] = 0; (*bary)[Z] = 0;
-
-		//BARYCENTRIC INTERPOLATION OF NORMAL
-		barycentricCoords((tri_w_min[0]), (tri_w_min[1]), (tri_w_min[2]), point, bary);
-
+		GzCoord bary; 
 		GzCoord pt_normal;
-		pt_normal[X] = (*bary)[X] * (tri_n_min[X])[X] + (*bary)[Y] * (tri_n_min[Y])[X] + (*bary)[Z] * (tri_n_min[Z])[X];
-		pt_normal[Y] = (*bary)[X] * (tri_n_min[X])[Y] + (*bary)[Y] * (tri_n_min[Y])[Y] + (*bary)[Z] * (tri_n_min[Z])[Y];
-		pt_normal[Z] = (*bary)[X] * (tri_n_min[X])[Z] + (*bary)[Y] * (tri_n_min[Y])[Z] + (*bary)[Z] * (tri_n_min[Z])[Z];
-		//normalize in case of loss of precision
+		pt_normal[X] = (tri_n_min[X])[X];
+		pt_normal[Y] = (tri_n_min[X])[Y];
+		pt_normal[Z] = (tri_n_min[X])[Z];
 		normalizeGzCoord(pt_normal);
-		free(bary);
-		GzCoord* pt_color = (GzCoord*)malloc(sizeof(GzCoord));
+		//free(bary);
+		GzCoord pt_color;// = (GzCoord*)malloc(sizeof(GzCoord));
 		computeColorAtPt(render, point, pt_normal, pt_color, InterKs, InterKd, InterKa);
 
 		//50 percent its emitted or reflected
@@ -1246,10 +1228,8 @@ void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender *rend
 			newray.position[1] = intersectionPt[1];
 			newray.position[2] = intersectionPt[2];
 
-			//max reflectance
-			//computeColorAtPt(render, point, pt_normal, pt_color, InterKs, InterKd, InterKa);  //Wasnt here before
-			
-			double p = (*pt_color)[0]>(*pt_color)[1] && (*pt_color)[0]>(*pt_color)[2] ? (*pt_color)[0] : (*pt_color)[1]>(*pt_color)[2] ? (*pt_color)[1] : (*pt_color)[2];
+			//max reflectance			
+			double p = (pt_color)[0]>(pt_color)[1] && (pt_color)[0]>(pt_color)[2] ? (pt_color)[0] : (pt_color)[1]>(pt_color)[2] ? (pt_color)[1] : (pt_color)[2];
 			// Russian roulette termination.
 			// If random number between 0 and 1 is > p, terminate and return hit object's emmission
 			float random = ((float)rand()) / (float)RAND_MAX;
@@ -1262,9 +1242,9 @@ void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender *rend
 				if (rnd<(p/**0.9*/)) // Multiply by 0.9 to avoid infinite loop with colours of 1.0
 				{ 
 					//colour = colour*(0.9 / p);
-					(*pt_color)[0] = (*pt_color)[0] * (1 / p);
-					(*pt_color)[1] = (*pt_color)[1] * (1 / p);
-					(*pt_color)[2] = (*pt_color)[2] * (1 / p);
+					(pt_color)[0] = (pt_color)[0] * (1 / p);
+					(pt_color)[1] = (pt_color)[1] * (1 / p);
+					(pt_color)[2] = (pt_color)[2] * (1 / p);
 
 				}
 				else 
@@ -1348,14 +1328,14 @@ void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender *rend
 
 			GzColor ret2;
 			TracePath(reflected, tris, depth, render, ret2);
-			retColor[0] = prob*(InterLe[0] + ((*pt_color)[0] * ret2[0]));
-			retColor[1] = prob*(InterLe[1] + ((*pt_color)[1] * ret2[1]));
-			retColor[2] = prob*(InterLe[2] + ((*pt_color)[2] * ret2[2]));
+			retColor[0] = prob*(InterLe[0] + ((pt_color)[0] * ret2[0]));
+			retColor[1] = prob*(InterLe[1] + ((pt_color)[1] * ret2[1]));
+			retColor[2] = prob*(InterLe[2] + ((pt_color)[2] * ret2[2]));
 			return;
 
 
 		}//End Reflective/Emissive
-		free(pt_color);
+		//free(pt_color);
 	}//End Intersected
 
 	//No Intersection
