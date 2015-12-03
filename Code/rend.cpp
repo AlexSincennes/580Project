@@ -10,8 +10,8 @@
 
 #define PI 3.141592653589793f
 #define MAXREFLECTANCE 10
-const int RAY_SAMPLES = 100;
-const int RAY_DEPTH = 6;
+const int RAY_SAMPLES = 1;
+const int RAY_DEPTH = 1;
 // HW3 helpers
 float degToRad(float deg) {
     return deg * PI / 180.0f;
@@ -86,11 +86,6 @@ void barycentricCoords(const GzCoord &vert0, const GzCoord &vert1, const GzCoord
     memcpy(vert2z, vert2, sizeof(GzCoord));
     memcpy(pointz, point, sizeof(GzCoord));
 
-    //reduce z range to prevent overflow
-    //vert0z[Z] /= 100000;
-    //vert1z[Z] /= 100000;
-    //vert2z[Z] /= 100000;
-    //pointz[Z] /= 100000;
 
     GzCoord v0, v1, v2;
     v0[X] = vert0z[X] - vert2z[X];
@@ -1062,30 +1057,8 @@ int raycast_render(GzRender *render, GzWorldSpaceTriangles *tris)
 			{
 				GzColor c_;
 
-				//if (a <= 0)
-				//{
-					TracePath(ray, tris, 0, render, c_);
+				TracePath(ray, tris, 0, render, c_);
 
-				//}
-				//else
-				//{
-					/*float random = ((float)rand()) / (float)RAND_MAX;
-					float diff = 1.0f - 0.0f;
-					float r = random * diff;
-					float ran_num = r;
-					float x_jitter = (ran_num*m_x_spacing) - (m_x_spacing / .5f);
-
-					random = ((float)rand()) / (float)RAND_MAX;
-					r = random * diff;
-					ran_num = r;
-					float y_jitter = (ran_num*m_y_spacing) - (m_y_spacing / .5f);
-
-					ray.position[0] = ray.position[0] + x_jitter;
-					ray.position[1] = ray.position[1] + y_jitter;*/
-
-				//	TracePath(ray, tris, 0, render, c_);
-
-	//			}
 				genColor[0] += c_[0];
 				genColor[1] += c_[1];
 				genColor[2] += c_[2];
@@ -1217,16 +1190,14 @@ void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender *rend
 	
 	//Fetch the colour of the ray position 
 	//Phong Shading
-	
-	
 	if (intersected)
 	{
 		//Randomly Decide whether light is emiited or reflected
 		//Choose random number between 0 and 1
-		float random = ((float)rand()) / (float)RAND_MAX;
-		float diff = 1.0f - 0.0f;
-		float r = random * diff;
-		float ran_num = r;
+
+		//float random = ((float)rand()) / (float)RAND_MAX;
+		//float diff = 1.0f - 0.0f;
+		//float ran_num = random * diff;
 
 		//Set intersection pt
 		//Interpolate Z for color
@@ -1237,17 +1208,17 @@ void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender *rend
 		
 
 		GzCoord point = { intersectionPt[0], intersectionPt[1], intersectionPt[2] };
-		GzCoord bary;// = (GzCoord*)malloc(sizeof(GzCoord));
+		GzCoord* bary = (GzCoord*)malloc(sizeof(GzCoord));
 
-		(bary)[X] = 0; (bary)[Y] = 0; (bary)[Z] = 0;
+		(*bary)[X] = 0; (*bary)[Y] = 0; (*bary)[Z] = 0;
 
 		//BARYCENTRIC INTERPOLATION OF NORMAL
-		barycentricCoords((tri_w_min[0]), (tri_w_min[1]), (tri_w_min[2]), point, &bary);
+		barycentricCoords((tri_w_min[0]), (tri_w_min[1]), (tri_w_min[2]), point, bary);
 
 		GzCoord pt_normal;
-		pt_normal[X] = (bary)[X] * (tri_n_min[X])[X] + (bary)[Y] * (tri_n_min[Y])[X] + (bary)[Z] * (tri_n_min[Z])[X];
-		pt_normal[Y] = (bary)[X] * (tri_n_min[X])[Y] + (bary)[Y] * (tri_n_min[Y])[Y] + (bary)[Z] * (tri_n_min[Z])[Y];
-		pt_normal[Z] = (bary)[X] * (tri_n_min[X])[Z] + (bary)[Y] * (tri_n_min[Y])[Z] + (bary)[Z] * (tri_n_min[Z])[Z];
+		pt_normal[X] = (*bary)[X] * (tri_n_min[X])[X] + (*bary)[Y] * (tri_n_min[Y])[X] + (*bary)[Z] * (tri_n_min[Z])[X];
+		pt_normal[Y] = (*bary)[X] * (tri_n_min[X])[Y] + (*bary)[Y] * (tri_n_min[Y])[Y] + (*bary)[Z] * (tri_n_min[Z])[Y];
+		pt_normal[Z] = (*bary)[X] * (tri_n_min[X])[Z] + (*bary)[Y] * (tri_n_min[Y])[Z] + (*bary)[Z] * (tri_n_min[Z])[Z];
 		//normalize in case of loss of precision
 		normalizeGzCoord(pt_normal);
 
@@ -1259,11 +1230,6 @@ void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender *rend
 		float prob = 1;
 		if (InterLe[0] > 1.0f)
 		{
-			//Emitted
-			//computeColorAtPt(render, point, pt_normal, pt_color, InterKs, InterKd, InterKa);
-			//retColor[0] = 2*(*pt_color)[0];
-			//retColor[1] = 2*(*pt_color)[1];
-			//retColor[2] = 2*(*pt_color)[2];
 
 			retColor[0] = prob*InterLe[0];
 			retColor[1] = prob*InterLe[1];
@@ -1284,8 +1250,6 @@ void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender *rend
 			//computeColorAtPt(render, point, pt_normal, pt_color, InterKs, InterKd, InterKa);  //Wasnt here before
 			
 			double p = (*pt_color)[0]>(*pt_color)[1] && (*pt_color)[0]>(*pt_color)[2] ? (*pt_color)[0] : (*pt_color)[1]>(*pt_color)[2] ? (*pt_color)[1] : (*pt_color)[2];
-
-
 			// Russian roulette termination.
 			// If random number between 0 and 1 is > p, terminate and return hit object's emmission
 			float random = ((float)rand()) / (float)RAND_MAX;
@@ -1305,11 +1269,7 @@ void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender *rend
 				}
 				else 
 				{
-					//return isct.m.get_emission();
-					
-					//retColor[0] = 2*(*pt_color)[0];
-					//retColor[1] = 2*(*pt_color)[1];
-					//retColor[2] = 2*(*pt_color)[2];
+
 					retColor[0] = prob*InterLe[0];
 					retColor[1] = prob*InterLe[1];
 					retColor[2] = prob*InterLe[2];

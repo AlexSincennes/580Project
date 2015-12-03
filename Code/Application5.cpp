@@ -76,31 +76,6 @@ int Application5::Initialize()
  
 	status |= GzNewRender(&m_pRender, m_pDisplay); 
 
-/* Translation matrix */
-GzMatrix	scale = 
-{ 
-	3.25,	0.0,	0.0,	0.0, 
-	0.0,	3.25,	0.0,	-3.25, 
-	0.0,	0.0,	3.25,	3.5, 
-	0.0,	0.0,	0.0,	1.0 
-}; 
- 
-GzMatrix	rotateX = 
-{ 
-	1.0,	0.0,	0.0,	0.0, 
-	0.0,	.7071,	.7071,	0.0, 
-	0.0,	-.7071,	.7071,	0.0, 
-	0.0,	0.0,	0.0,	1.0 
-}; 
- 
-GzMatrix	rotateY = 
-{ 
-	.866,	0.0,	-0.5,	0.0, 
-	0.0,	1.0,	0.0,	0.0, 
-	0.5,	0.0,	.866,	0.0, 
-	0.0,	0.0,	0.0,	1.0 
-}; 
-
 #if 0 	/* set up app-defined camera if desired, else use camera defaults */
     camera.position[X] = -3;
     camera.position[Y] = -25;
@@ -174,19 +149,9 @@ GzMatrix	rotateY =
         specpower = 32;
         valueListShader[4] = (GzPointer)&specpower;
 
-        // get rid of textures
-        //nameListShader[5]  = GZ_TEXTURE_MAP;
-#if 0   /* set up null texture function or valid pointer */
-        //valueListShader[5] = (GzPointer)0;
-#else
-        //valueListShader[5] = (GzPointer)(tex_fun);	/* or use ptex_fun */
-#endif
+
         status |= GzPutAttribute(m_pRender, 5, nameListShader, valueListShader);
 
-
-	//status |= GzPushMatrix(m_pRender, scale);  
-	//status |= GzPushMatrix(m_pRender, rotateY); 
-	//status |= GzPushMatrix(m_pRender, rotateX); 
 
 	if (status) exit(GZ_FAILURE); 
 
@@ -376,27 +341,24 @@ int Application5::Render()
 			diffuseCoefficient[1] = .75;
 			diffuseCoefficient[2] = .75;
 		}
-		else //TeaPot
+		else //Cube
 		{
-			ambientCoefficient[0] = .7;
-			ambientCoefficient[1] = .1;
-			ambientCoefficient[2] = .1;
+			ambientCoefficient[0] = .4;
+			ambientCoefficient[1] = .3;
+			ambientCoefficient[2] = .3;
 
 			emissionCoefficient[0] = 0.0f;
 			emissionCoefficient[1] = 0.0f;
 			emissionCoefficient[2] = 0.0f;
 
-			diffuseCoefficient[0] = .7;
-			diffuseCoefficient[1] = .1;
-			diffuseCoefficient[2] = .1;
+			diffuseCoefficient[0] = .4;
+			diffuseCoefficient[1] = .3;
+			diffuseCoefficient[2] = .3;
 
 			
 
 		}
 
-
-
-        // untested
         GzTriangle* tri = new GzTriangle();
         GzVertex* v0 = new GzVertex();
         memcpy(v0->Ka, ambientCoefficient, sizeof(GzColor));
@@ -443,10 +405,8 @@ int Application5::Render()
 	int hrs = (int)diff / 3600;
 	int mins = ((int)diff / 60) - (hrs * 60);
 	int secs = (int)diff - (hrs * 3600) - (mins*60);
-	printf("\r\nTime taken: %i hrs, %i mins, %i secs \n\n", hrs,mins,secs);
 	CString str;
 	str.Format("\r\nTime taken: %i hrs, %i mins, %i secs \n\n", hrs, mins, secs);
-	//AfxMessageBox(str); //AfxMessageBox("\r\nTime taken: %i hrs, %i mins, %i secs \n\n", hrs, mins, secs);
 	/* 
 	 * Close file
 	 */ 
