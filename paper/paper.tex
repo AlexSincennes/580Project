@@ -176,7 +176,65 @@ For each pixel for which the above process is carried out, it is repeated a cert
 
 
 \section{Results}
-Pictures, maybe some figures for different numbers of rays.
+
+To test our path tracing application, we placed a grey box floating in an environment that is similar to a typical Cornell Box, but with blue and green walls rather than red and green ones. When running the application with different values of $s$ (ray samples from each pixel) and $d$ (recursion depth), we found that the time of execution was linearly related to the amount of samples, which is unsurprising since $s$ controls the number of iterations of a single loop. When increasing $d$ however, the application appears to converge towards a given time. This can be explained by the geometry of the scene having an average number of reflections before hitting a light source. Therefore, beyond this value for d, the application does not take significantly more time to run.
+
+\par
+The image becomes sharp at around $s=10$ for any value of $d$, and artifacts persist beyond $s=40, d=4$.
+
+\begin{figure}[!t]
+
+\centering
+\includegraphics[width=2.5in]{1s_1d_26s}
+\caption{1 set of rays, recursion depth 1, time: 26 seconds}
+\label{1s_1d_26s}
+
+\end{figure}
+
+\begin{figure}[!t]
+
+\centering
+\includegraphics[width=2.5in]{1s_4d_34s}
+\caption{1 set of rays, recursion depth 4, time: 34 seconds}
+\label{1s_4d_34s}
+
+\end{figure}
+
+\begin{figure}[!t]
+
+\centering
+\includegraphics[width=2.5in]{1s_16d_36s}
+\caption{1 set of rays, recursion depth 16, time: 36 seconds}
+\label{1s_16d_36s}
+
+\end{figure}
+
+\begin{figure}[!t]
+
+\centering
+\includegraphics[width=2.5in]{10s_1d_5m42s}
+\caption{10 sets of rays, recursion depth 1, time: 5m42s}
+\label{10s_1d_5m42s}
+
+\end{figure}
+
+\begin{figure}[!t]
+
+\centering
+\includegraphics[width=2.5in]{20s_1d_11m26s}
+\caption{20 sets of rays, recursion depth 1, time: 11m26s}
+\label{20s_1d_11m26s}
+
+\end{figure}
+
+\begin{figure}[!t]
+
+\centering
+\includegraphics[width=2.5in]{40s_4d_23m25s}
+\caption{40 sets of rays, recursion depth 4, time: 23m25s}
+\label{40s_4d_23m25s}
+
+\end{figure}
 
 \section{Challenges \& Observations}
 
@@ -197,12 +255,15 @@ Whitted, T. An improved illumination model for shaded display. \emph{Comunicatio
 Kajiya, J. The Rendering Equation. \emph{SIGGRAPH '86}, 20(4):143-150, 1986.
 
 \bibitem {Brown}
+Slides from Brown University.
 \url{http://cs.brown.edu/courses/cs224/papers/mc_pathtracing.pdf}
 
 \bibitem {Virginia}
+Slides from the University of Virginia.
 \url{http://www.cs.virginia.edu/~gfx/Courses/2010/IntroGraphics/Lectures/6-RayCasting.pdf}
 
 \bibitem {Scratchapixel}
+Global Illumination and Path Tracing.
 \url{http://www.scratchapixel.com/lessons/3d-basic-rendering/global-illumination-path-tracing/global-illumination-path-tracing-practical-implementation}
 
 \end{thebibliography}
