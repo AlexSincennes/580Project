@@ -1,4 +1,4 @@
-\documentclass[journal]{IEEEtran}
+\documentclass[12pt,journal]{IEEEtran}
 
 \usepackage[pdftex]{graphicx}
 \DeclareGraphicsExtensions{.png}
@@ -69,8 +69,10 @@ The core of the Monte Carlo algorithm is recursive and has relatively few steps.
   \item[2)] Find the point of intersection with the nearest surface
   \item[3)] Determine whether the surface is a light source or not (as indicated by a special coefficients for light emittance)
   \item[3A)] if it is a light source, return $weight * light$
-  \item[3B)] if it is not, $weight \mathrel{*}= (Ks+Kd+Ka)/3$ and randomly scatter a new ray according to a probability density function (pdf) approximating its bidirectional refletance distribution function (brdf), and go to step 2
+  \item[3B)] if not, $weight \mathrel{*}= \frac{Ks+Kd+Ka}{3}$ and randomly scatter a new ray according to a probability density function (pdf) approximating its bidirectional refletance distribution function (brdf), and go to step 2
 \end{description}
+
+\newpage
 
 In order for this algorithm to be implemented, other algorithms such as ray-triangle intersection must also be implemented. 
 Additionally, a BRDF pdf must be created for each surface. A reasonable BRDF pdf would be a uniform distribution, wherein \emph{any} 
@@ -131,13 +133,12 @@ Finally, with knowledge of the image resolution ($w_{i}$ and $h_{i}$), we can fi
 $\text{pixel}_{(i,j)}= BL + u * i * w / w_{i} + v * j * h/h_{i}$
 \end{center}
 
-Thus, with the position of the pixel we want to draw on the image plane, and the position of the camera, we can draw a ray starting at the camera, passing through that pixel, and into the environment.
-
 \begin{flushright}
 \par 
 (6)
 \end{flushright}
 
+Thus, with the position of the pixel we want to draw on the image plane, and the position of the camera, we can draw a ray starting at the camera, passing through that pixel, and into the environment.
 
 \begin{figure}[!t]
 
@@ -176,7 +177,7 @@ For each pixel for which the above process is carried out, it is repeated a cert
 
 \section{Results}
 
-To test our path tracing application, we placed a grey box floating in an environment that is similar to a typical Cornell Box, but with blue and green walls rather than red and green ones. When running the application with different values of $s$ (ray samples from each pixel) and $d$ (recursion depth), we found that the time of execution was linearly related to the amount of samples, which is unsurprising since $s$ controls the number of iterations of a single loop. When increasing $d$ however, the application appears to converge towards a given time. This can be explained by the geometry of the scene having an average number of reflections before hitting a light source. Therefore, beyond this value for d, the application does not take significantly more time to run.
+To test our path tracing application, we placed a grey box floating in an environment that is similar to a typical Cornell Box, but with blue and green walls rather than red and green ones. When running the application with different values of $s$ (ray samples from each pixel) and $d$ (recursion depth), we found that the time of execution was linearly related to the amount of samples, which is unsurprising since $s$ controls the number of iterations of a single loop. When increasing $d$ however, the application appears to converge towards a given time. This can be explained by the geometry of the scene having an average number of reflections before hitting a light source. Therefore, beyond this value for d, the application does not take significantly more time to run. Additionally, an increase in $d$ also increases the brightness of the image, since a ray has a higher chance of hitting a light source if it is allowed a greater number of ``bounces'' off surfaces.
 
 \par
 The image becomes sharp at around $s=10$ for any value of $d$, and artifacts persist up to $s=40, d=4$ and $s=100,d=1$.
@@ -220,7 +221,7 @@ The image becomes sharp at around $s=10$ for any value of $d$, and artifacts per
 \begin{figure}[!t]
 
 \centering
-\includegraphics[width=2.5in]{20s_1d_11m26s}
+\includegraphics[width=2.6in]{20s_1d_11m26s}
 \caption{20 sets of rays, recursion depth 1, time: 11m26s}
 \label{20s_1d_11m26s}
 
@@ -244,6 +245,15 @@ The image becomes sharp at around $s=10$ for any value of $d$, and artifacts per
 
 \end{figure}
 
+\begin{figure}[!t]
+
+\centering
+\includegraphics[width=2.6in]{100s_16d_42m10s}
+\caption{100 sets of rays, recursion depth 1, time: 42m10s}
+\label{1100s_16d_42m10s}
+
+\end{figure}
+
 \section{Challenges \& Observations}
 There were many obstacles on the way to the completion of the project. Firstly, the codebase of the assignments is not particularly suited for ray casting: rather, it is suited for processing the geometry one triangle at a time since it rasterized them. Thus, a new architectured had to be written to replace the old one, which was more of a time sink than first anticipated. 
 \par
@@ -259,6 +269,12 @@ Another opportunity for extension of the application is in its performance. Ther
 
 \par
 As for parallelization, the ray casting approach lends itself well to being parallelized since each ray is reflected irrespective of rays casting through the same pixels (the samples), as well as irrespectively of the rays being cast through other pixels. Therefore, each individual ray could be calculated simultaneously. Incidentally, this process lends itself well to GPUs, which specialize in computing large sets of similar data.
+
+\par
+Also, as noted in the result sections, where an increase in $d$ increases brightness, the reflection quantity could be controlled by a random value to keep the shading consistent. This approach is called the Russian Roulette approach, wherein each successive reflected ray diminishes the chance of the next collision producing a reflected ray. This is done by comparing a random value between 0 and 1 to the current weight of the ray, which diminishes with each successive reflection.
+
+\par
+Furthermore, for images where $s \ge 10$, fully dark pixels are displayed in a noticeable, somewhat circular pattern. This could be the result of the uniform random reflectance along the semi-circular hemisphere, although there is currently not a definitive answer to why these artifacts appear.
 
 %===================================================
 
