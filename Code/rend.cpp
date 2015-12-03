@@ -10,8 +10,8 @@
 
 #define PI 3.141592653589793f
 #define MAXREFLECTANCE 10
-const int RAY_SAMPLES = 1;
-const int RAY_DEPTH = 1;
+const int RAY_SAMPLES = 40;
+const int RAY_DEPTH = 2;
 // HW3 helpers
 float degToRad(float deg) {
     return deg * PI / 180.0f;
@@ -1221,7 +1221,7 @@ void TracePath(GzRay ray, GzWorldSpaceTriangles *tris, int depth, GzRender *rend
 		pt_normal[Z] = (*bary)[X] * (tri_n_min[X])[Z] + (*bary)[Y] * (tri_n_min[Y])[Z] + (*bary)[Z] * (tri_n_min[Z])[Z];
 		//normalize in case of loss of precision
 		normalizeGzCoord(pt_normal);
-
+		free(bary);
 		GzCoord* pt_color = (GzCoord*)malloc(sizeof(GzCoord));
 		computeColorAtPt(render, point, pt_normal, pt_color, InterKs, InterKd, InterKa);
 

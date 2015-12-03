@@ -354,9 +354,6 @@ int Application5::Render()
 			diffuseCoefficient[0] = .4;
 			diffuseCoefficient[1] = .3;
 			diffuseCoefficient[2] = .3;
-
-			
-
 		}
 
         GzTriangle* tri = new GzTriangle();
