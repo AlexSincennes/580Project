@@ -86,10 +86,10 @@ The graphics pipeline was designed as follows: initialization is carried out, wh
 \section{The Path Tracing Implementation}
 Much like the Monte Carlo path tracing algorithm outlined previously, rays are cast from the camera out into the scene, through the view plane. The reason for why the process is carried out in the reverse order in comparison to the real world, in which light is emitted from a light source, bounces off surfaces and hits the film or photoreceptors (or the real-world ``image plane'') of the camera, is that in reality, the vast majority of light misses this ``image plane''. Therefore, it would be extremely inefficient to calculate the path of light beams (or photons) which would be unseen by the camera.
 \par
-If we know the vertical and horizontal fields of view of the camera, as well as its position (e, for eye) and coordinate system (u,v,n) as well as picking an arbitrary distance (d) for the view plane, we can determine the height and width of the image plane:
+If we know the vertical and horizontal fields of view of the camera, as well as its position (e, for eye) and coordinate system (u,v,n) as well as picking an arbitrary distance (d) for the view plane, we can determine the height ($h$) and width ($w$) of the image plane:
 
 \begin{center}
-$\tan(\theta_{vertical}/2) = \text{height} / 2d$
+$\tan(\theta_{vertical}/2) = h / 2d$
 \end{center}
 
 \begin{flushright}
@@ -98,7 +98,7 @@ $\tan(\theta_{vertical}/2) = \text{height} / 2d$
 \end{flushright}
 
 \begin{center}
-$\tan(\theta_{horizontal}/2) = \text{width} / 2d$
+$\tan(\theta_{horizontal}/2) =w / 2d$
 \end{center}
 
 \begin{flushright}
@@ -106,7 +106,7 @@ $\tan(\theta_{horizontal}/2) = \text{width} / 2d$
 (3)
 \end{flushright}
 
-Then, we can find the center of the image plane, and its bottom-left corner:
+Then, we can find the center of the image plane, and its bottom-left corner ($BL$):
 
 \begin{center}
 $c = e - n * d$
@@ -118,13 +118,25 @@ $c = e - n * d$
 \end{flushright}
 
 \begin{center}
-$\text{bottom left} = c - u * \text{height} /2 - v * \text{width} /2$
+$BL = c - u * h /2 - v *w/2$
 \end{center}
 
 \begin{flushright}
 \par 
-(4)
+(5)
 \end{flushright}
+
+Finally, with knowledge of the image resolution ($w_{i}$ and $h_{i}$), we can find the location of the pixel that the ray will pass through:
+
+\begin{center}
+$\text{pixel}_{(i,j)}= BL + u * i * w / w_{i} + v * j * h/h_{i}$
+\end{center}
+
+\begin{flushright}
+\par 
+(6)
+\end{flushright}
+
 
 \begin{figure}[!t]
 
